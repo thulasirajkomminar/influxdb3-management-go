@@ -1,6 +1,6 @@
-# InfluxDB v3 Cloud Dedicated Management API Client Library
+# InfluxDB v3 Cloud Dedicated Management API Go Client Library
 
-The InfluxDB v3 Management API client library lets you manage an InfluxDB Cloud Dedicated instance and integrate functions such as creating and managing databases, permissions, and tokens into your workflow or application.
+The InfluxDB v3 Management API Go client library lets you manage an InfluxDB Cloud Dedicated instance and integrate functions such as creating and managing databases, permissions, and tokens into your workflow or application.
 
 ## Generated types and API client
 
@@ -8,12 +8,9 @@ This library is generated using [oapi-codegen](https://github.com/oapi-codegen/o
 
 ### Generate
 
-#### Generate types
-`oapi-codegen -generate types -o types.gen.go -package influxdb3 openapi.yml`
-
-#### Generate client
-`oapi-codegen -generate client -o client.gen.go -package influxdb3 openapi.yml`
-
+```go
+go generate ./...
+```
 
 ## Usage
 
