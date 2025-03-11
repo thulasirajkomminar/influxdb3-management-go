@@ -927,7 +927,7 @@ type GetClusterDatabasesResponse struct {
 		// Name The name of the cluster database
 		Name ClusterDatabaseName `json:"name"`
 
-		// PartitionTemplate A template for [partitioning](/influxdb/cloud-dedicated/admin/custom-partitions/) a cluster database.
+		// PartitionTemplate A template for [partitioning](/influxdb3/cloud-dedicated/admin/custom-partitions/) a cluster database.
 		//
 		// Each template part is evaluated in sequence, concatinating the final
 		// partition key from the output of each part, delimited by the partition
@@ -971,14 +971,14 @@ type GetClusterDatabasesResponse struct {
 		//   * `time=2023-01-01, a=<long string>`                   -> `2023|<long string>#|!|!`
 		//   * `time=2023-01-01, c=<long string>`                   -> `2023|!|!|<bucket ID for untruncated long string>`
 		//
-		// When using the default [partitioning](/influxdb/cloud-dedicated/admin/custom-partitions/) template (YYYY-MM-DD) there is no
+		// When using the default [partitioning](/influxdb3/cloud-dedicated/admin/custom-partitions/) template (YYYY-MM-DD) there is no
 		// encoding necessary, as the derived partition key contains a single part, and
 		// no reserved characters. [`TemplatePart::Bucket`] parts by definition will
 		// always be within the part length limit and contain no restricted characters
 		// so are also not percent-encoded and/or truncated.
 		PartitionTemplate *ClusterDatabasePartitionTemplate `json:"partitionTemplate,omitempty"`
 
-		// RetentionPeriod The retention period of the [cluster database](/influxdb/cloud-dedicated/admin/databases/) in nanoseconds, if applicable
+		// RetentionPeriod The retention period of the [cluster database](/influxdb3/cloud-dedicated/admin/databases/) in nanoseconds, if applicable
 		//
 		// If the retention period is not set or is set to 0, the database will have infinite retention
 		RetentionPeriod ClusterDatabaseRetentionPeriod `json:"retentionPeriod"`
@@ -1022,7 +1022,7 @@ type CreateClusterDatabaseResponse struct {
 		// Name The name of the cluster database
 		Name ClusterDatabaseName `json:"name"`
 
-		// PartitionTemplate A template for [partitioning](/influxdb/cloud-dedicated/admin/custom-partitions/) a cluster database.
+		// PartitionTemplate A template for [partitioning](/influxdb3/cloud-dedicated/admin/custom-partitions/) a cluster database.
 		//
 		// Each template part is evaluated in sequence, concatinating the final
 		// partition key from the output of each part, delimited by the partition
@@ -1066,14 +1066,14 @@ type CreateClusterDatabaseResponse struct {
 		//   * `time=2023-01-01, a=<long string>`                   -> `2023|<long string>#|!|!`
 		//   * `time=2023-01-01, c=<long string>`                   -> `2023|!|!|<bucket ID for untruncated long string>`
 		//
-		// When using the default [partitioning](/influxdb/cloud-dedicated/admin/custom-partitions/) template (YYYY-MM-DD) there is no
+		// When using the default [partitioning](/influxdb3/cloud-dedicated/admin/custom-partitions/) template (YYYY-MM-DD) there is no
 		// encoding necessary, as the derived partition key contains a single part, and
 		// no reserved characters. [`TemplatePart::Bucket`] parts by definition will
 		// always be within the part length limit and contain no restricted characters
 		// so are also not percent-encoded and/or truncated.
 		PartitionTemplate *ClusterDatabasePartitionTemplate `json:"partitionTemplate,omitempty"`
 
-		// RetentionPeriod The retention period of the [cluster database](/influxdb/cloud-dedicated/admin/databases/) in nanoseconds, if applicable
+		// RetentionPeriod The retention period of the [cluster database](/influxdb3/cloud-dedicated/admin/databases/) in nanoseconds, if applicable
 		//
 		// If the retention period is not set or is set to 0, the database will have infinite retention
 		RetentionPeriod ClusterDatabaseRetentionPeriod `json:"retentionPeriod"`
@@ -1144,7 +1144,7 @@ type UpdateClusterDatabaseResponse struct {
 		// Name The name of the cluster database
 		Name ClusterDatabaseName `json:"name"`
 
-		// RetentionPeriod The retention period of the [cluster database](/influxdb/cloud-dedicated/admin/databases/) in nanoseconds, if applicable
+		// RetentionPeriod The retention period of the [cluster database](/influxdb3/cloud-dedicated/admin/databases/) in nanoseconds, if applicable
 		//
 		// If the retention period is not set or is set to 0, the database will have infinite retention
 		RetentionPeriod ClusterDatabaseRetentionPeriod `json:"retentionPeriod"`
@@ -1182,10 +1182,10 @@ type CreateClusterDatabaseTableResponse struct {
 		// DatabaseName The name of the cluster database
 		DatabaseName ClusterDatabaseName `json:"databaseName"`
 
-		// Name The name of the [cluster database](/influxdb/cloud-dedicated/admin/databases/) table
+		// Name The name of the [cluster database](/influxdb3/cloud-dedicated/admin/databases/) table
 		Name ClusterDatabaseTableName `json:"name"`
 
-		// PartitionTemplate A template for [partitioning](/influxdb/cloud-dedicated/admin/custom-partitions/) a cluster database.
+		// PartitionTemplate A template for [partitioning](/influxdb3/cloud-dedicated/admin/custom-partitions/) a cluster database.
 		//
 		// Each template part is evaluated in sequence, concatinating the final
 		// partition key from the output of each part, delimited by the partition
@@ -1229,7 +1229,7 @@ type CreateClusterDatabaseTableResponse struct {
 		//   * `time=2023-01-01, a=<long string>`                   -> `2023|<long string>#|!|!`
 		//   * `time=2023-01-01, c=<long string>`                   -> `2023|!|!|<bucket ID for untruncated long string>`
 		//
-		// When using the default [partitioning](/influxdb/cloud-dedicated/admin/custom-partitions/) template (YYYY-MM-DD) there is no
+		// When using the default [partitioning](/influxdb3/cloud-dedicated/admin/custom-partitions/) template (YYYY-MM-DD) there is no
 		// encoding necessary, as the derived partition key contains a single part, and
 		// no reserved characters. [`TemplatePart::Bucket`] parts by definition will
 		// always be within the part length limit and contain no restricted characters
@@ -1272,7 +1272,7 @@ type GetDatabaseTokensResponse struct {
 		Description DatabaseTokenDescription `json:"description"`
 		Id          UuidV4                   `json:"id"`
 
-		// Permissions The list of permissions the [database token](/influxdb/cloud-dedicated/admin/tokens/database/) allows
+		// Permissions The list of permissions the [database token](/influxdb3/cloud-dedicated/admin/tokens/database/) allows
 		Permissions DatabaseTokenPermissions `json:"permissions"`
 	}
 	JSON400 *BadRequest
@@ -1314,7 +1314,7 @@ type CreateDatabaseTokenResponse struct {
 		Description DatabaseTokenDescription `json:"description"`
 		Id          UuidV4                   `json:"id"`
 
-		// Permissions The list of permissions the [database token](/influxdb/cloud-dedicated/admin/tokens/database/) allows
+		// Permissions The list of permissions the [database token](/influxdb3/cloud-dedicated/admin/tokens/database/) allows
 		Permissions DatabaseTokenPermissions `json:"permissions"`
 	}
 	JSON400 *BadRequest
@@ -1379,7 +1379,7 @@ type GetDatabaseTokenResponse struct {
 		Description DatabaseTokenDescription `json:"description"`
 		Id          UuidV4                   `json:"id"`
 
-		// Permissions The list of permissions the [database token](/influxdb/cloud-dedicated/admin/tokens/database/) allows
+		// Permissions The list of permissions the [database token](/influxdb3/cloud-dedicated/admin/tokens/database/) allows
 		Permissions DatabaseTokenPermissions `json:"permissions"`
 	}
 	JSON400 *BadRequest
@@ -1417,7 +1417,7 @@ type UpdateDatabaseTokenResponse struct {
 		Description DatabaseTokenDescription `json:"description"`
 		Id          UuidV4                   `json:"id"`
 
-		// Permissions The list of permissions the [database token](/influxdb/cloud-dedicated/admin/tokens/database/) allows
+		// Permissions The list of permissions the [database token](/influxdb3/cloud-dedicated/admin/tokens/database/) allows
 		Permissions DatabaseTokenPermissions `json:"permissions"`
 	}
 	JSON400 *BadRequest
@@ -1602,7 +1602,7 @@ func ParseGetClusterDatabasesResponse(rsp *http.Response) (*GetClusterDatabasesR
 			// Name The name of the cluster database
 			Name ClusterDatabaseName `json:"name"`
 
-			// PartitionTemplate A template for [partitioning](/influxdb/cloud-dedicated/admin/custom-partitions/) a cluster database.
+			// PartitionTemplate A template for [partitioning](/influxdb3/cloud-dedicated/admin/custom-partitions/) a cluster database.
 			//
 			// Each template part is evaluated in sequence, concatinating the final
 			// partition key from the output of each part, delimited by the partition
@@ -1646,14 +1646,14 @@ func ParseGetClusterDatabasesResponse(rsp *http.Response) (*GetClusterDatabasesR
 			//   * `time=2023-01-01, a=<long string>`                   -> `2023|<long string>#|!|!`
 			//   * `time=2023-01-01, c=<long string>`                   -> `2023|!|!|<bucket ID for untruncated long string>`
 			//
-			// When using the default [partitioning](/influxdb/cloud-dedicated/admin/custom-partitions/) template (YYYY-MM-DD) there is no
+			// When using the default [partitioning](/influxdb3/cloud-dedicated/admin/custom-partitions/) template (YYYY-MM-DD) there is no
 			// encoding necessary, as the derived partition key contains a single part, and
 			// no reserved characters. [`TemplatePart::Bucket`] parts by definition will
 			// always be within the part length limit and contain no restricted characters
 			// so are also not percent-encoded and/or truncated.
 			PartitionTemplate *ClusterDatabasePartitionTemplate `json:"partitionTemplate,omitempty"`
 
-			// RetentionPeriod The retention period of the [cluster database](/influxdb/cloud-dedicated/admin/databases/) in nanoseconds, if applicable
+			// RetentionPeriod The retention period of the [cluster database](/influxdb3/cloud-dedicated/admin/databases/) in nanoseconds, if applicable
 			//
 			// If the retention period is not set or is set to 0, the database will have infinite retention
 			RetentionPeriod ClusterDatabaseRetentionPeriod `json:"retentionPeriod"`
@@ -1731,7 +1731,7 @@ func ParseCreateClusterDatabaseResponse(rsp *http.Response) (*CreateClusterDatab
 			// Name The name of the cluster database
 			Name ClusterDatabaseName `json:"name"`
 
-			// PartitionTemplate A template for [partitioning](/influxdb/cloud-dedicated/admin/custom-partitions/) a cluster database.
+			// PartitionTemplate A template for [partitioning](/influxdb3/cloud-dedicated/admin/custom-partitions/) a cluster database.
 			//
 			// Each template part is evaluated in sequence, concatinating the final
 			// partition key from the output of each part, delimited by the partition
@@ -1775,14 +1775,14 @@ func ParseCreateClusterDatabaseResponse(rsp *http.Response) (*CreateClusterDatab
 			//   * `time=2023-01-01, a=<long string>`                   -> `2023|<long string>#|!|!`
 			//   * `time=2023-01-01, c=<long string>`                   -> `2023|!|!|<bucket ID for untruncated long string>`
 			//
-			// When using the default [partitioning](/influxdb/cloud-dedicated/admin/custom-partitions/) template (YYYY-MM-DD) there is no
+			// When using the default [partitioning](/influxdb3/cloud-dedicated/admin/custom-partitions/) template (YYYY-MM-DD) there is no
 			// encoding necessary, as the derived partition key contains a single part, and
 			// no reserved characters. [`TemplatePart::Bucket`] parts by definition will
 			// always be within the part length limit and contain no restricted characters
 			// so are also not percent-encoded and/or truncated.
 			PartitionTemplate *ClusterDatabasePartitionTemplate `json:"partitionTemplate,omitempty"`
 
-			// RetentionPeriod The retention period of the [cluster database](/influxdb/cloud-dedicated/admin/databases/) in nanoseconds, if applicable
+			// RetentionPeriod The retention period of the [cluster database](/influxdb3/cloud-dedicated/admin/databases/) in nanoseconds, if applicable
 			//
 			// If the retention period is not set or is set to 0, the database will have infinite retention
 			RetentionPeriod ClusterDatabaseRetentionPeriod `json:"retentionPeriod"`
@@ -1921,7 +1921,7 @@ func ParseUpdateClusterDatabaseResponse(rsp *http.Response) (*UpdateClusterDatab
 			// Name The name of the cluster database
 			Name ClusterDatabaseName `json:"name"`
 
-			// RetentionPeriod The retention period of the [cluster database](/influxdb/cloud-dedicated/admin/databases/) in nanoseconds, if applicable
+			// RetentionPeriod The retention period of the [cluster database](/influxdb3/cloud-dedicated/admin/databases/) in nanoseconds, if applicable
 			//
 			// If the retention period is not set or is set to 0, the database will have infinite retention
 			RetentionPeriod ClusterDatabaseRetentionPeriod `json:"retentionPeriod"`
@@ -1993,10 +1993,10 @@ func ParseCreateClusterDatabaseTableResponse(rsp *http.Response) (*CreateCluster
 			// DatabaseName The name of the cluster database
 			DatabaseName ClusterDatabaseName `json:"databaseName"`
 
-			// Name The name of the [cluster database](/influxdb/cloud-dedicated/admin/databases/) table
+			// Name The name of the [cluster database](/influxdb3/cloud-dedicated/admin/databases/) table
 			Name ClusterDatabaseTableName `json:"name"`
 
-			// PartitionTemplate A template for [partitioning](/influxdb/cloud-dedicated/admin/custom-partitions/) a cluster database.
+			// PartitionTemplate A template for [partitioning](/influxdb3/cloud-dedicated/admin/custom-partitions/) a cluster database.
 			//
 			// Each template part is evaluated in sequence, concatinating the final
 			// partition key from the output of each part, delimited by the partition
@@ -2040,7 +2040,7 @@ func ParseCreateClusterDatabaseTableResponse(rsp *http.Response) (*CreateCluster
 			//   * `time=2023-01-01, a=<long string>`                   -> `2023|<long string>#|!|!`
 			//   * `time=2023-01-01, c=<long string>`                   -> `2023|!|!|<bucket ID for untruncated long string>`
 			//
-			// When using the default [partitioning](/influxdb/cloud-dedicated/admin/custom-partitions/) template (YYYY-MM-DD) there is no
+			// When using the default [partitioning](/influxdb3/cloud-dedicated/admin/custom-partitions/) template (YYYY-MM-DD) there is no
 			// encoding necessary, as the derived partition key contains a single part, and
 			// no reserved characters. [`TemplatePart::Bucket`] parts by definition will
 			// always be within the part length limit and contain no restricted characters
@@ -2123,7 +2123,7 @@ func ParseGetDatabaseTokensResponse(rsp *http.Response) (*GetDatabaseTokensRespo
 			Description DatabaseTokenDescription `json:"description"`
 			Id          UuidV4                   `json:"id"`
 
-			// Permissions The list of permissions the [database token](/influxdb/cloud-dedicated/admin/tokens/database/) allows
+			// Permissions The list of permissions the [database token](/influxdb3/cloud-dedicated/admin/tokens/database/) allows
 			Permissions DatabaseTokenPermissions `json:"permissions"`
 		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -2199,7 +2199,7 @@ func ParseCreateDatabaseTokenResponse(rsp *http.Response) (*CreateDatabaseTokenR
 			Description DatabaseTokenDescription `json:"description"`
 			Id          UuidV4                   `json:"id"`
 
-			// Permissions The list of permissions the [database token](/influxdb/cloud-dedicated/admin/tokens/database/) allows
+			// Permissions The list of permissions the [database token](/influxdb3/cloud-dedicated/admin/tokens/database/) allows
 			Permissions DatabaseTokenPermissions `json:"permissions"`
 		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -2332,7 +2332,7 @@ func ParseGetDatabaseTokenResponse(rsp *http.Response) (*GetDatabaseTokenRespons
 			Description DatabaseTokenDescription `json:"description"`
 			Id          UuidV4                   `json:"id"`
 
-			// Permissions The list of permissions the [database token](/influxdb/cloud-dedicated/admin/tokens/database/) allows
+			// Permissions The list of permissions the [database token](/influxdb3/cloud-dedicated/admin/tokens/database/) allows
 			Permissions DatabaseTokenPermissions `json:"permissions"`
 		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -2404,7 +2404,7 @@ func ParseUpdateDatabaseTokenResponse(rsp *http.Response) (*UpdateDatabaseTokenR
 			Description DatabaseTokenDescription `json:"description"`
 			Id          UuidV4                   `json:"id"`
 
-			// Permissions The list of permissions the [database token](/influxdb/cloud-dedicated/admin/tokens/database/) allows
+			// Permissions The list of permissions the [database token](/influxdb3/cloud-dedicated/admin/tokens/database/) allows
 			Permissions DatabaseTokenPermissions `json:"permissions"`
 		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {

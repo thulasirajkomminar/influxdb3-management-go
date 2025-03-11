@@ -4,7 +4,7 @@ The InfluxDB v3 Management API Go client library lets you manage an InfluxDB Clo
 
 ## Generated types and API client
 
-This library is generated using [oapi-codegen](https://github.com/oapi-codegen/oapi-codegen) from this [OpenAPI spec](https://github.com/influxdata/docs-v2/blob/master/api-docs/cloud-dedicated/management/openapi.yml)
+This library is generated using [oapi-codegen](https://github.com/oapi-codegen/oapi-codegen) from this [OpenAPI spec](https://github.com/influxdata/docs-v2/blob/master/api-docs/influxdb3/cloud-dedicated/management/openapi.yml)
 
 ### Generate
 
