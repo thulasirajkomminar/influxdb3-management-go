@@ -1,4 +1,4 @@
-module github.com/komminarlabs/influxdb3
+module github.com/komminarlabs/influxdb3-management-go
 
 go 1.22.5
 
