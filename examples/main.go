@@ -8,7 +8,7 @@ import (
 
 	"github.com/caarlos0/env/v11"
 	"github.com/hashicorp/go-retryablehttp"
-	"github.com/komminarlabs/influxdb3"
+	influxdb3 "github.com/thulasirajkomminar/influxdb3-management-go"
 )
 
 type InfluxdbConfig struct {
