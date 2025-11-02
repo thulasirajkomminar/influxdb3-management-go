@@ -2,12 +2,10 @@ module github.com/thulasirajkomminar/influxdb3-management-go/examples
 
 go 1.24.1
 
-replace github.com/thulasirajkomminar/influxdb3-management-go => ../
-
 require (
 	github.com/caarlos0/env/v11 v11.3.1
 	github.com/hashicorp/go-retryablehttp v0.7.7
-	github.com/thulasirajkomminar/influxdb3-management-go v0.1.2
+	github.com/thulasirajkomminar/influxdb3-management-go v0.2.0
 )
 
 require (

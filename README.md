@@ -34,7 +34,7 @@ import (
 	"net/http"
 
 	"github.com/caarlos0/env/v11"
-	influxdb3 "github.com/thulasirajkomminar/influxdb3-management-go"
+	"github.com/thulasirajkomminar/influxdb3-management-go"
 )
 
 type InfluxdbConfig struct {
