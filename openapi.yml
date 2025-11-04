@@ -7,10 +7,10 @@ info:
 
     This documentation is generated from the
     InfluxDB OpenAPI specification.
+  version: ""
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
-  version: ''
   contact:
     name: InfluxData
     url: https://www.influxdata.com
@@ -31,7 +31,7 @@ tags:
   - name: Authentication
     x-traitTag: true
     description: |
-      The InfluxDB Management API endpoints require the following credentials:
+      With InfluxDB 3 Cloud Dedicated, the InfluxDB Management API endpoints require the following credentials:
 
       - `ACCOUNT_ID`: The ID of the [account](/influxdb3/cloud-dedicated/get-started/setup/#request-an-influxdb-cloud-dedicated-cluster) that the cluster belongs to. To view account ID and cluster ID, [list cluster details](/influxdb3/cloud-dedicated/admin/clusters/list/#detailed-output-in-json).
       - `CLUSTER_ID`: The ID of the [cluster](/influxdb3/cloud-dedicated/get-started/setup/#request-an-influxdb-cloud-dedicated-cluster) that you want to manage. To view account ID and cluster ID, [list cluster details](/influxdb3/cloud-dedicated/admin/clusters/list/#detailed-output-in-json).
@@ -40,11 +40,12 @@ tags:
         See how to [create a management token](/influxdb3/cloud-dedicated/admin/tokens/management/).
 
         By default, management tokens in InfluxDB 3 are short-lived tokens issued by an OAuth2 identity provider that grant a specific user administrative access to your InfluxDB cluster. However, for automation purposes, you can manually create management tokens that authenticate directly with your InfluxDB cluster and do not require human interaction with your identity provider.
+        <!-- ReDoc-Inject: <security-definitions> -->
   - name: Database tokens
     description: Manage database read/write tokens for a cluster
   - name: Databases
     description: Manage databases for a cluster
-  - name: Example
+  - name: Quickstart
     x-traitTag: true
     description: |
       The following example script shows how to use `curl` to make database and token management requests:
@@ -303,15 +304,15 @@ paths:
           description: The ID of the [account](/influxdb3/cloud-dedicated/get-started/setup/#request-an-influxdb-cloud-dedicated-cluster) to get the [databases](/influxdb3/cloud-dedicated/admin/databases/) for
           required: true
           schema:
-            $ref: '#/components/schemas/UuidV4'
+            $ref: "#/components/schemas/UuidV4"
         - name: clusterId
           in: path
           description: The ID of the cluster to get the [databases](/influxdb3/cloud-dedicated/admin/databases/) for
           required: true
           schema:
-            $ref: '#/components/schemas/UuidV4'
+            $ref: "#/components/schemas/UuidV4"
       responses:
-        '200':
+        "200":
           description: The cluster databases were successfully retrieved
           content:
             application/json:
@@ -322,20 +323,20 @@ paths:
                   properties:
                     accountId:
                       description: The ID of the [account](/influxdb3/cloud-dedicated/get-started/setup/#request-an-influxdb-cloud-dedicated-cluster) that the database belongs to
-                      $ref: '#/components/schemas/UuidV4'
+                      $ref: "#/components/schemas/UuidV4"
                     clusterId:
                       description: The ID of the cluster that the database belongs to
-                      $ref: '#/components/schemas/UuidV4'
+                      $ref: "#/components/schemas/UuidV4"
                     name:
-                      $ref: '#/components/schemas/ClusterDatabaseName'
+                      $ref: "#/components/schemas/ClusterDatabaseName"
                     maxTables:
-                      $ref: '#/components/schemas/ClusterDatabaseMaxTables'
+                      $ref: "#/components/schemas/ClusterDatabaseMaxTables"
                     maxColumnsPerTable:
-                      $ref: '#/components/schemas/ClusterDatabaseMaxColumnsPerTable'
+                      $ref: "#/components/schemas/ClusterDatabaseMaxColumnsPerTable"
                     retentionPeriod:
-                      $ref: '#/components/schemas/ClusterDatabaseRetentionPeriod'
+                      $ref: "#/components/schemas/ClusterDatabaseRetentionPeriod"
                     partitionTemplate:
-                      $ref: '#/components/schemas/ClusterDatabasePartitionTemplate'
+                      $ref: "#/components/schemas/ClusterDatabasePartitionTemplate"
                   required:
                     - accountId
                     - clusterId
@@ -358,7 +359,7 @@ paths:
                   retentionPeriod: 300000000000
                   partitionTemplate:
                     - type: time
-                      value: '%Y'
+                      value: "%Y"
                     - type: tag
                       value: bananas
                     - type: tag
@@ -367,18 +368,18 @@ paths:
                       value:
                         tagName: c
                         numberOfBuckets: 10
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
       x-codeSamples:
-        - label: ''
+        - label: ""
           lang: Shell
           source: |
             HOST="https://console.influxdata.com"
@@ -397,6 +398,26 @@ paths:
     post:
       operationId: CreateClusterDatabase
       summary: Create a database
+      description: |
+        Create a database for a cluster.
+
+        The database name must be unique within the cluster.
+
+        **Default maximum number of columns**: 250
+        **Default maximum number of tables**: 500
+
+        The retention period is specified in nanoseconds. For example, to set a retention period of 1 hour, use `3600000000000`.
+
+        InfluxDB Cloud Dedicated lets you define a [custom partitioning](/influxdb3/cloud-dedicated/admin/custom-partitions/) strategy for each database and table.
+        A _partition_ is a logical grouping of data stored in [Apache Parquet](https://parquet.apache.org/).
+        By default, data is partitioned by day,
+        but, depending on your schema and workload, customizing the partitioning
+        strategy can improve query performance.
+
+        To use custom partitioning, you define a [partition template](/influxdb3/cloud-dedicated/admin/custom-partitions/partition-templates/).
+        If a table doesn't have a custom partition template, it inherits the database's template.
+        The partition template is set at the time of database creation and cannot be changed later.
+        For more information, see [Custom partitions](/influxdb3/cloud-dedicated/admin/custom-partitions/).
       tags:
         - Databases
       parameters:
@@ -405,13 +426,13 @@ paths:
           description: The ID of the [account](/influxdb3/cloud-dedicated/get-started/setup/#request-an-influxdb-cloud-dedicated-cluster) to create the database for
           required: true
           schema:
-            $ref: '#/components/schemas/UuidV4'
+            $ref: "#/components/schemas/UuidV4"
         - name: clusterId
           in: path
           description: The ID of the cluster to create the database for
           required: true
           schema:
-            $ref: '#/components/schemas/UuidV4'
+            $ref: "#/components/schemas/UuidV4"
       requestBody:
         required: true
         content:
@@ -420,15 +441,15 @@ paths:
               type: object
               properties:
                 name:
-                  $ref: '#/components/schemas/ClusterDatabaseName'
+                  $ref: "#/components/schemas/ClusterDatabaseName"
                 maxTables:
-                  $ref: '#/components/schemas/ClusterDatabaseMaxTables'
+                  $ref: "#/components/schemas/ClusterDatabaseMaxTables"
                 maxColumnsPerTable:
-                  $ref: '#/components/schemas/ClusterDatabaseMaxColumnsPerTable'
+                  $ref: "#/components/schemas/ClusterDatabaseMaxColumnsPerTable"
                 retentionPeriod:
-                  $ref: '#/components/schemas/ClusterDatabaseRetentionPeriod'
+                  $ref: "#/components/schemas/ClusterDatabaseRetentionPeriod"
                 partitionTemplate:
-                  $ref: '#/components/schemas/ClusterDatabasePartitionTemplate'
+                  $ref: "#/components/schemas/ClusterDatabasePartitionTemplate"
               required:
                 - name
             examples:
@@ -445,7 +466,7 @@ paths:
                   retentionPeriod: 300000000000
                   partitionTemplate:
                     - type: time
-                      value: '%Y'
+                      value: "%Y"
                     - type: tag
                       value: bananas
                     - type: tag
@@ -455,7 +476,7 @@ paths:
                         tagName: c
                         numberOfBuckets: 10
       responses:
-        '200':
+        "200":
           description: The cluster database was successfully created
           content:
             application/json:
@@ -464,20 +485,20 @@ paths:
                 properties:
                   accountId:
                     description: The ID of the [account](/influxdb3/cloud-dedicated/get-started/setup/#request-an-influxdb-cloud-dedicated-cluster) that the database belongs to
-                    $ref: '#/components/schemas/UuidV4'
+                    $ref: "#/components/schemas/UuidV4"
                   clusterId:
                     description: The ID of the cluster that the database belongs to
-                    $ref: '#/components/schemas/UuidV4'
+                    $ref: "#/components/schemas/UuidV4"
                   name:
-                    $ref: '#/components/schemas/ClusterDatabaseName'
+                    $ref: "#/components/schemas/ClusterDatabaseName"
                   maxTables:
-                    $ref: '#/components/schemas/ClusterDatabaseMaxTables'
+                    $ref: "#/components/schemas/ClusterDatabaseMaxTables"
                   maxColumnsPerTable:
-                    $ref: '#/components/schemas/ClusterDatabaseMaxColumnsPerTable'
+                    $ref: "#/components/schemas/ClusterDatabaseMaxColumnsPerTable"
                   retentionPeriod:
-                    $ref: '#/components/schemas/ClusterDatabaseRetentionPeriod'
+                    $ref: "#/components/schemas/ClusterDatabaseRetentionPeriod"
                   partitionTemplate:
-                    $ref: '#/components/schemas/ClusterDatabasePartitionTemplate'
+                    $ref: "#/components/schemas/ClusterDatabasePartitionTemplate"
                 required:
                   - accountId
                   - clusterId
@@ -506,7 +527,7 @@ paths:
                     retentionPeriod: 300000000000
                     partitionTemplate:
                       - type: time
-                        value: '%Y'
+                        value: "%Y"
                       - type: tag
                         value: a
                       - type: tag
@@ -515,18 +536,18 @@ paths:
                         value:
                           tagName: c
                           numberOfBuckets: 10
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
       x-codeSamples:
         - label: cURL
           lang: Shell
@@ -575,19 +596,19 @@ paths:
           description: The ID of the [account](/influxdb3/cloud-dedicated/get-started/setup/#request-an-influxdb-cloud-dedicated-cluster) that the database belongs to
           required: true
           schema:
-            $ref: '#/components/schemas/UuidV4'
+            $ref: "#/components/schemas/UuidV4"
         - name: clusterId
           in: path
           description: The ID of the cluster that the database belongs to
           required: true
           schema:
-            $ref: '#/components/schemas/UuidV4'
+            $ref: "#/components/schemas/UuidV4"
         - name: databaseName
           in: path
           description: The name of the database to update
           required: true
           schema:
-            $ref: '#/components/schemas/ClusterDatabaseName'
+            $ref: "#/components/schemas/ClusterDatabaseName"
       requestBody:
         required: true
         content:
@@ -596,11 +617,11 @@ paths:
               type: object
               properties:
                 maxTables:
-                  $ref: '#/components/schemas/ClusterDatabaseMaxTables'
+                  $ref: "#/components/schemas/ClusterDatabaseMaxTables"
                 maxColumnsPerTable:
-                  $ref: '#/components/schemas/ClusterDatabaseMaxColumnsPerTable'
+                  $ref: "#/components/schemas/ClusterDatabaseMaxColumnsPerTable"
                 retentionPeriod:
-                  $ref: '#/components/schemas/ClusterDatabaseRetentionPeriod'
+                  $ref: "#/components/schemas/ClusterDatabaseRetentionPeriod"
               minProperties: 1
             examples:
               allFields:
@@ -609,7 +630,7 @@ paths:
                   maxTables: 300
                   maxColumnsPerTable: 150
                   retentionPeriod: 600000000000
-              maxTablsOnly:
+              maxTablesOnly:
                 summary: Update Max Tables Only
                 value:
                   maxTables: 300
@@ -622,7 +643,7 @@ paths:
                 value:
                   retentionPeriod: 600000000000
       responses:
-        '200':
+        "200":
           description: The cluster database was successfully updated.
           content:
             application/json:
@@ -631,18 +652,18 @@ paths:
                 properties:
                   accountId:
                     description: The ID of the [account](/influxdb3/cloud-dedicated/get-started/setup/#request-an-influxdb-cloud-dedicated-cluster) that the database belongs to
-                    $ref: '#/components/schemas/UuidV4'
+                    $ref: "#/components/schemas/UuidV4"
                   clusterId:
                     description: The ID of the cluster that the database belongs to
-                    $ref: '#/components/schemas/UuidV4'
+                    $ref: "#/components/schemas/UuidV4"
                   name:
-                    $ref: '#/components/schemas/ClusterDatabaseName'
+                    $ref: "#/components/schemas/ClusterDatabaseName"
                   maxTables:
-                    $ref: '#/components/schemas/ClusterDatabaseMaxTables'
+                    $ref: "#/components/schemas/ClusterDatabaseMaxTables"
                   maxColumnsPerTable:
-                    $ref: '#/components/schemas/ClusterDatabaseMaxColumnsPerTable'
+                    $ref: "#/components/schemas/ClusterDatabaseMaxColumnsPerTable"
                   retentionPeriod:
-                    $ref: '#/components/schemas/ClusterDatabaseRetentionPeriod'
+                    $ref: "#/components/schemas/ClusterDatabaseRetentionPeriod"
                 required:
                   - accountId
                   - clusterId
@@ -660,7 +681,7 @@ paths:
                     maxTables: 300
                     maxColumnsPerTable: 150
                     retentionPeriod: 600000000000
-                maxTablsOnly:
+                maxTablesOnly:
                   summary: Update Max Tables Only
                   value:
                     accountId: 11111111-1111-4111-8111-111111111111
@@ -687,16 +708,16 @@ paths:
                     maxTables: 500
                     maxColumnsPerTable: 200
                     retentionPeriod: 600000000000
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
       x-codeSamples:
         - label: cURL
           lang: Shell
@@ -731,33 +752,33 @@ paths:
           description: The ID of the [account](/influxdb3/cloud-dedicated/get-started/setup/#request-an-influxdb-cloud-dedicated-cluster) that the database belongs to
           required: true
           schema:
-            $ref: '#/components/schemas/UuidV4'
+            $ref: "#/components/schemas/UuidV4"
         - name: clusterId
           in: path
           description: The ID of the cluster that the database belongs to
           required: true
           schema:
-            $ref: '#/components/schemas/UuidV4'
+            $ref: "#/components/schemas/UuidV4"
         - name: databaseName
           in: path
           description: The name of the database to delete
           required: true
           schema:
-            $ref: '#/components/schemas/ClusterDatabaseName'
+            $ref: "#/components/schemas/ClusterDatabaseName"
       responses:
-        '204':
+        "204":
           description: The cluster database was successfully deleted
-          $ref: '#/components/responses/NoContent'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
+          $ref: "#/components/responses/NoContent"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
       x-codeSamples:
         - label: cURL
           lang: Shell
@@ -779,6 +800,18 @@ paths:
     post:
       operationId: CreateClusterDatabaseTable
       summary: Create a database table
+      description: |
+        Create a table. The database must already exist. With InfluxDB Cloud Dedicated, tables and measurements are synonymous.
+
+        Typically, tables are created automatically on write using the measurement name
+        specified in line protocol written to InfluxDB.
+        However, to apply a [custom partition template](/influxdb3/cloud-dedicated/admin/custom-partitions/)
+        to a table, you must manually [create the table with custom partitioning](/influxdb3/cloud-dedicated/admin/tables/#create-a-table-with-custom-partitioning) before you write any data to it.
+
+        Partitioning defaults to `%Y-%m-%d` (daily). 
+        When a partition template is applied to a database, it becomes the default template
+        for all tables in that database, but can be overridden when creating a
+        table.
       tags:
         - Tables
       parameters:
@@ -787,19 +820,19 @@ paths:
           description: The ID of the [account](/influxdb3/cloud-dedicated/get-started/setup/#request-an-influxdb-cloud-dedicated-cluster) to create the database table for
           required: true
           schema:
-            $ref: '#/components/schemas/UuidV4'
+            $ref: "#/components/schemas/UuidV4"
         - name: clusterId
           in: path
           description: The ID of the cluster to create the database table for
           required: true
           schema:
-            $ref: '#/components/schemas/UuidV4'
+            $ref: "#/components/schemas/UuidV4"
         - name: databaseName
           in: path
           description: The name of the database to create the database table for
           required: true
           schema:
-            $ref: '#/components/schemas/ClusterDatabaseName'
+            $ref: "#/components/schemas/ClusterDatabaseName"
       requestBody:
         required: true
         content:
@@ -808,9 +841,9 @@ paths:
               type: object
               properties:
                 name:
-                  $ref: '#/components/schemas/ClusterDatabaseTableName'
+                  $ref: "#/components/schemas/ClusterDatabaseTableName"
                 partitionTemplate:
-                  $ref: '#/components/schemas/ClusterDatabasePartitionTemplate'
+                  $ref: "#/components/schemas/ClusterDatabasePartitionTemplate"
               required:
                 - name
             examples:
@@ -824,7 +857,7 @@ paths:
                   name: TableTwo
                   partitionTemplate:
                     - type: time
-                      value: '%Y'
+                      value: "%Y"
                     - type: tag
                       value: bananas
                     - type: tag
@@ -834,7 +867,7 @@ paths:
                         tagName: c
                         numberOfBuckets: 10
       responses:
-        '200':
+        "200":
           description: The cluster database table was successfully created
           content:
             application/json:
@@ -843,18 +876,18 @@ paths:
                 properties:
                   accountId:
                     description: The ID of the [account](/influxdb3/cloud-dedicated/get-started/setup/#request-an-influxdb-cloud-dedicated-cluster) that the database table belongs to
-                    $ref: '#/components/schemas/UuidV4'
+                    $ref: "#/components/schemas/UuidV4"
                   clusterId:
                     description: The ID of the cluster that the database table belongs to
-                    $ref: '#/components/schemas/UuidV4'
+                    $ref: "#/components/schemas/UuidV4"
                   databaseName:
                     description: The name of the database that the database table belongs to
-                    $ref: '#/components/schemas/ClusterDatabaseName'
+                    $ref: "#/components/schemas/ClusterDatabaseName"
                   name:
                     description: The name of the database table
-                    $ref: '#/components/schemas/ClusterDatabaseTableName'
+                    $ref: "#/components/schemas/ClusterDatabaseTableName"
                   partitionTemplate:
-                    $ref: '#/components/schemas/ClusterDatabasePartitionTemplate'
+                    $ref: "#/components/schemas/ClusterDatabasePartitionTemplate"
                 required:
                   - accountId
                   - clusterId
@@ -877,7 +910,7 @@ paths:
                     name: TableTwo
                     partitionTemplate:
                       - type: time
-                        value: '%Y'
+                        value: "%Y"
                       - type: tag
                         value: a
                       - type: tag
@@ -886,18 +919,18 @@ paths:
                         value:
                           tagName: c
                           numberOfBuckets: 10
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
   /accounts/{accountId}/clusters/{clusterId}/tokens:
     get:
       operationId: GetDatabaseTokens
@@ -910,15 +943,15 @@ paths:
           description: The ID of the [account](/influxdb3/cloud-dedicated/get-started/setup/#request-an-influxdb-cloud-dedicated-cluster) to get the [database tokens](/influxdb3/cloud-dedicated/admin/tokens/database/) for
           required: true
           schema:
-            $ref: '#/components/schemas/UuidV4'
+            $ref: "#/components/schemas/UuidV4"
         - name: clusterId
           in: path
           description: The ID of the cluster to get the [database tokens](/influxdb3/cloud-dedicated/admin/tokens/database/) for
           required: true
           schema:
-            $ref: '#/components/schemas/UuidV4'
+            $ref: "#/components/schemas/UuidV4"
       responses:
-        '200':
+        "200":
           description: The database tokens were successfully retrieved
           content:
             application/json:
@@ -929,19 +962,23 @@ paths:
                   properties:
                     accountId:
                       description: The ID of the [account](/influxdb3/cloud-dedicated/get-started/setup/#request-an-influxdb-cloud-dedicated-cluster) that the [database token](/influxdb3/cloud-dedicated/admin/tokens/database/) belongs to
-                      $ref: '#/components/schemas/UuidV4'
+                      $ref: "#/components/schemas/UuidV4"
                     clusterId:
                       description: The ID of the cluster that the [database token](/influxdb3/cloud-dedicated/admin/tokens/database/) belongs to
-                      $ref: '#/components/schemas/UuidV4'
+                      $ref: "#/components/schemas/UuidV4"
                     id:
                       description: The ID of the database token
-                      $ref: '#/components/schemas/UuidV4'
+                      $ref: "#/components/schemas/UuidV4"
                     description:
-                      $ref: '#/components/schemas/DatabaseTokenDescription'
+                      $ref: "#/components/schemas/DatabaseTokenDescription"
                     permissions:
-                      $ref: '#/components/schemas/DatabaseTokenPermissions'
+                      $ref: "#/components/schemas/DatabaseTokenPermissions"
                     createdAt:
-                      $ref: '#/components/schemas/DatabaseTokenCreatedAt'
+                      $ref: "#/components/schemas/DatabaseTokenCreatedAt"
+                    expiresAt:
+                      $ref: "#/components/schemas/DatabaseTokenExpiresAt"
+                    revokedAt:
+                      $ref: "#/components/schemas/DatabaseTokenRevokedAt"
                   required:
                     - accountId
                     - clusterId
@@ -959,31 +996,31 @@ paths:
                       resource: DatabaseOne
                     - action: write
                       resource: DatabaseTwo
-                  createdAt: '2023-12-21T17:32:28.000Z'
+                  createdAt: "2023-12-21T17:32:28.000Z"
                 - accountId: 11111111-1111-4111-8111-111111111111
                   clusterId: 33333333-3333-4333-8333-333333333333
                   id: 66666666-6666-4666-8666-666666666666
                   description: Full Access Token
                   permissions:
                     - action: write
-                      resource: '*'
-                  createdAt: '2024-03-02T04:20:19.000Z'
+                      resource: "*"
+                  createdAt: "2024-03-02T04:20:19.000Z"
                 - accountId: 11111111-1111-4111-8111-111111111111
                   clusterId: 33333333-3333-4333-8333-333333333333
                   id: 77777777-7777-4777-8777-777777777777
                   description: No Access Token
                   permissions: []
-                  createdAt: '2024-03-02T04:20:19.000Z'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
+                  createdAt: "2024-03-02T04:20:19.000Z"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
       x-codeSamples:
         - label: cURL
           lang: Shell
@@ -1027,13 +1064,13 @@ paths:
           description: The ID of the [account](/influxdb3/cloud-dedicated/get-started/setup/#request-an-influxdb-cloud-dedicated-cluster) to create the [database token](/influxdb3/cloud-dedicated/admin/tokens/database/) for
           required: true
           schema:
-            $ref: '#/components/schemas/UuidV4'
+            $ref: "#/components/schemas/UuidV4"
         - name: clusterId
           in: path
           description: The ID of the cluster to create the [database token](/influxdb3/cloud-dedicated/admin/tokens/database/) for
           required: true
           schema:
-            $ref: '#/components/schemas/UuidV4'
+            $ref: "#/components/schemas/UuidV4"
       requestBody:
         required: true
         content:
@@ -1042,9 +1079,11 @@ paths:
               type: object
               properties:
                 description:
-                  $ref: '#/components/schemas/DatabaseTokenDescription'
+                  $ref: "#/components/schemas/DatabaseTokenDescription"
                 permissions:
-                  $ref: '#/components/schemas/DatabaseTokenPermissions'
+                  $ref: "#/components/schemas/DatabaseTokenPermissions"
+                expiresAt:
+                  $ref: "#/components/schemas/DatabaseTokenExpiresAt"
               required:
                 - description
             examples:
@@ -1063,14 +1102,14 @@ paths:
                   description: Full Access Token
                   permissions:
                     - action: write
-                      resource: '*'
+                      resource: "*"
               noAccessToken:
                 summary: No Access Token
                 value:
                   description: No Access Token
                   permissions: []
       responses:
-        '200':
+        "200":
           description: The database token was successfully created
           content:
             application/json:
@@ -1079,21 +1118,25 @@ paths:
                 properties:
                   accountId:
                     description: The ID of the [account](/influxdb3/cloud-dedicated/get-started/setup/#request-an-influxdb-cloud-dedicated-cluster) that the [database token](/influxdb3/cloud-dedicated/admin/tokens/database/) belongs to
-                    $ref: '#/components/schemas/UuidV4'
+                    $ref: "#/components/schemas/UuidV4"
                   clusterId:
                     description: The ID of the cluster that the [database token](/influxdb3/cloud-dedicated/admin/tokens/database/) belongs to
-                    $ref: '#/components/schemas/UuidV4'
+                    $ref: "#/components/schemas/UuidV4"
                   id:
                     description: The ID of the database token
-                    $ref: '#/components/schemas/UuidV4'
+                    $ref: "#/components/schemas/UuidV4"
                   description:
-                    $ref: '#/components/schemas/DatabaseTokenDescription'
+                    $ref: "#/components/schemas/DatabaseTokenDescription"
                   permissions:
-                    $ref: '#/components/schemas/DatabaseTokenPermissions'
+                    $ref: "#/components/schemas/DatabaseTokenPermissions"
                   createdAt:
-                    $ref: '#/components/schemas/DatabaseTokenCreatedAt'
+                    $ref: "#/components/schemas/DatabaseTokenCreatedAt"
                   accessToken:
-                    $ref: '#/components/schemas/DatabaseTokenAccessToken'
+                    $ref: "#/components/schemas/DatabaseTokenAccessToken"
+                  expiresAt:
+                    $ref: "#/components/schemas/DatabaseTokenExpiresAt"
+                  revokedAt:
+                    $ref: "#/components/schemas/DatabaseTokenRevokedAt"
                 required:
                   - accountId
                   - clusterId
@@ -1115,7 +1158,7 @@ paths:
                         resource: DatabaseOne
                       - action: write
                         resource: DatabaseTwo
-                    createdAt: '2023-12-21T17:32:28.000Z'
+                    createdAt: "2023-12-21T17:32:28.000Z"
                     accessToken: apiv1_5555555555555555555555555555555555555555555555555555555555555555
                 fullAccessToken:
                   summary: Full Access Token
@@ -1126,8 +1169,8 @@ paths:
                     description: Full Access Token
                     permissions:
                       - action: write
-                        resource: '*'
-                    createdAt: '2024-03-02T04:20:19.000Z'
+                        resource: "*"
+                    createdAt: "2024-03-02T04:20:19.000Z"
                     accessToken: apiv1_6666666666666666666666666666666666666666666666666666666666666666
                 noAccessToken:
                   summary: No Access Token
@@ -1137,20 +1180,20 @@ paths:
                     id: 66666666-6666-4666-8666-666666666666
                     description: No Access Token
                     permissions: []
-                    createdAt: '2024-03-02T04:20:19.000Z'
+                    createdAt: "2024-03-02T04:20:19.000Z"
                     accessToken: apiv1_7777777777777777777777777777777777777777777777777777777777777777
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
       x-codeSamples:
         - label: cURL
           lang: Shell
@@ -1185,6 +1228,14 @@ paths:
     get:
       operationId: GetDatabaseToken
       summary: Get a database token
+      description: |
+        Retrieve metadata details for a [database token](/influxdb3/cloud-dedicated/admin/tokens/database/).
+
+        #### Store secure tokens in a secret store
+
+        We recommend storing database tokens in a **secure secret store**.
+
+        Token strings are viewable _only_ on token creation and aren't stored by InfluxDB; you can't recover a lost token.
       tags:
         - Database tokens
       parameters:
@@ -1193,21 +1244,21 @@ paths:
           description: The ID of the [account](/influxdb3/cloud-dedicated/get-started/setup/#request-an-influxdb-cloud-dedicated-cluster) that the [database token](/influxdb3/cloud-dedicated/admin/tokens/database/) belongs to
           required: true
           schema:
-            $ref: '#/components/schemas/UuidV4'
+            $ref: "#/components/schemas/UuidV4"
         - name: clusterId
           in: path
           description: The ID of the cluster that the [database token](/influxdb3/cloud-dedicated/admin/tokens/database/) belongs to
           required: true
           schema:
-            $ref: '#/components/schemas/UuidV4'
+            $ref: "#/components/schemas/UuidV4"
         - name: tokenId
           in: path
           description: The ID of the [database token](/influxdb3/cloud-dedicated/admin/tokens/database/) to get
           required: true
           schema:
-            $ref: '#/components/schemas/UuidV4'
+            $ref: "#/components/schemas/UuidV4"
       responses:
-        '200':
+        "200":
           description: The database token was successfully retrieved.
           content:
             application/json:
@@ -1216,19 +1267,23 @@ paths:
                 properties:
                   accountId:
                     description: The ID of the [account](/influxdb3/cloud-dedicated/get-started/setup/#request-an-influxdb-cloud-dedicated-cluster) that the [database token](/influxdb3/cloud-dedicated/admin/tokens/database/) belongs to
-                    $ref: '#/components/schemas/UuidV4'
+                    $ref: "#/components/schemas/UuidV4"
                   clusterId:
                     description: The ID of the cluster that the [database token](/influxdb3/cloud-dedicated/admin/tokens/database/) belongs to
-                    $ref: '#/components/schemas/UuidV4'
+                    $ref: "#/components/schemas/UuidV4"
                   id:
                     description: The ID of the database token
-                    $ref: '#/components/schemas/UuidV4'
+                    $ref: "#/components/schemas/UuidV4"
                   description:
-                    $ref: '#/components/schemas/DatabaseTokenDescription'
+                    $ref: "#/components/schemas/DatabaseTokenDescription"
                   permissions:
-                    $ref: '#/components/schemas/DatabaseTokenPermissions'
+                    $ref: "#/components/schemas/DatabaseTokenPermissions"
                   createdAt:
-                    $ref: '#/components/schemas/DatabaseTokenCreatedAt'
+                    $ref: "#/components/schemas/DatabaseTokenCreatedAt"
+                  expiresAt:
+                    $ref: "#/components/schemas/DatabaseTokenExpiresAt"
+                  revokedAt:
+                    $ref: "#/components/schemas/DatabaseTokenRevokedAt"
                 required:
                   - accountId
                   - clusterId
@@ -1249,7 +1304,7 @@ paths:
                         resource: DatabaseOne
                       - action: write
                         resource: DatabaseTwo
-                    createdAt: '2023-12-21T17:32:28.000Z'
+                    createdAt: "2023-12-21T17:32:28.000Z"
                 fullAccessToken:
                   summary: Full Access Token
                   value:
@@ -1259,8 +1314,8 @@ paths:
                     description: Full Access Token
                     permissions:
                       - action: write
-                        resource: '*'
-                    createdAt: '2024-03-02T04:20:19.000Z'
+                        resource: "*"
+                    createdAt: "2024-03-02T04:20:19.000Z"
                 noAccessToken:
                   summary: No Access Token
                   value:
@@ -1269,17 +1324,17 @@ paths:
                     id: 77777777-7777-4777-8777-777777777777
                     description: No Access Token
                     permissions: []
-                    createdAt: '2024-03-02T04:20:19.000Z'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
+                    createdAt: "2024-03-02T04:20:19.000Z"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
       x-codeSamples:
         - label: cURL
           lang: Shell
@@ -1299,6 +1354,8 @@ paths:
     patch:
       operationId: UpdateDatabaseToken
       summary: Update a database token
+      description: |
+        Update the description and permissions of a [database token](/influxdb3/cloud-dedicated/admin/tokens/database/).
       tags:
         - Database tokens
       parameters:
@@ -1307,19 +1364,18 @@ paths:
           description: The ID of the [account](/influxdb3/cloud-dedicated/get-started/setup/#request-an-influxdb-cloud-dedicated-cluster) that the [database token](/influxdb3/cloud-dedicated/admin/tokens/database/) belongs to
           required: true
           schema:
-            $ref: '#/components/schemas/UuidV4'
+            $ref: "#/components/schemas/UuidV4"
         - name: clusterId
           in: path
           description: The ID of the cluster that the [database token](/influxdb3/cloud-dedicated/admin/tokens/database/) belongs to
           required: true
           schema:
-            $ref: '#/components/schemas/UuidV4'
+            $ref: "#/components/schemas/UuidV4"
         - name: tokenId
           in: path
           description: The ID of the [database token](/influxdb3/cloud-dedicated/admin/tokens/database/) to update
-          required: true
           schema:
-            $ref: '#/components/schemas/UuidV4'
+            $ref: "#/components/schemas/UuidV4"
       requestBody:
         required: true
         content:
@@ -1328,9 +1384,9 @@ paths:
               type: object
               properties:
                 description:
-                  $ref: '#/components/schemas/DatabaseTokenDescription'
+                  $ref: "#/components/schemas/DatabaseTokenDescription"
                 permissions:
-                  $ref: '#/components/schemas/DatabaseTokenPermissions'
+                  $ref: "#/components/schemas/DatabaseTokenPermissions"
               minProperties: 1
             examples:
               allFields:
@@ -1363,7 +1419,7 @@ paths:
                 value:
                   permissions: []
       responses:
-        '200':
+        "200":
           description: The database token was successfully updated
           content:
             application/json:
@@ -1372,19 +1428,23 @@ paths:
                 properties:
                   accountId:
                     description: The ID of the [account](/influxdb3/cloud-dedicated/get-started/setup/#request-an-influxdb-cloud-dedicated-cluster) that the [database token](/influxdb3/cloud-dedicated/admin/tokens/database/) belongs to
-                    $ref: '#/components/schemas/UuidV4'
+                    $ref: "#/components/schemas/UuidV4"
                   clusterId:
                     description: The ID of the cluster that the [database token](/influxdb3/cloud-dedicated/admin/tokens/database/) belongs to
-                    $ref: '#/components/schemas/UuidV4'
+                    $ref: "#/components/schemas/UuidV4"
                   id:
                     description: The ID of the database token
-                    $ref: '#/components/schemas/UuidV4'
+                    $ref: "#/components/schemas/UuidV4"
                   description:
-                    $ref: '#/components/schemas/DatabaseTokenDescription'
+                    $ref: "#/components/schemas/DatabaseTokenDescription"
                   permissions:
-                    $ref: '#/components/schemas/DatabaseTokenPermissions'
+                    $ref: "#/components/schemas/DatabaseTokenPermissions"
                   createdAt:
-                    $ref: '#/components/schemas/DatabaseTokenCreatedAt'
+                    $ref: "#/components/schemas/DatabaseTokenCreatedAt"
+                  expiresAt:
+                    $ref: "#/components/schemas/DatabaseTokenExpiresAt"
+                  revokedAt:
+                    $ref: "#/components/schemas/DatabaseTokenRevokedAt"
                 required:
                   - accountId
                   - clusterId
@@ -1407,7 +1467,7 @@ paths:
                         resource: DatabaseTwo
                       - action: write
                         resource: DatabaseThree
-                    createdAt: '2023-12-21T17:32:28.000Z'
+                    createdAt: "2023-12-21T17:32:28.000Z"
                 descriptionOnly:
                   summary: Update Description Only
                   value:
@@ -1420,7 +1480,7 @@ paths:
                         resource: DatabaseOne
                       - action: write
                         resource: DatabaseTwo
-                    createdAt: '2023-12-21T17:32:28.000Z'
+                    createdAt: "2023-12-21T17:32:28.000Z"
                 permissionsOnly:
                   summary: Update Permissions Only
                   value:
@@ -1435,7 +1495,7 @@ paths:
                         resource: DatabaseTwo
                       - action: write
                         resource: DatabaseThree
-                    createdAt: '2023-12-21T17:32:28.000Z'
+                    createdAt: "2023-12-21T17:32:28.000Z"
                 removeAllPermissions:
                   summary: Remove All Permissions
                   value:
@@ -1444,19 +1504,19 @@ paths:
                     id: 55555555-5555-4555-8555-555555555555
                     description: Limited Access Token
                     permissions: []
-                    createdAt: '2023-12-21T17:32:28.000Z'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
+                    createdAt: "2023-12-21T17:32:28.000Z"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
       x-codeSamples:
         - label: cURL
           lang: Shell
@@ -1503,33 +1563,33 @@ paths:
           description: The ID of the [account](/influxdb3/cloud-dedicated/get-started/setup/#request-an-influxdb-cloud-dedicated-cluster) that the [database token](/influxdb3/cloud-dedicated/admin/tokens/database/) belongs to
           required: true
           schema:
-            $ref: '#/components/schemas/UuidV4'
+            $ref: "#/components/schemas/UuidV4"
         - name: clusterId
           in: path
           description: The ID of the cluster that the [database token](/influxdb3/cloud-dedicated/admin/tokens/database/) belongs to
           required: true
           schema:
-            $ref: '#/components/schemas/UuidV4'
+            $ref: "#/components/schemas/UuidV4"
         - name: tokenId
           in: path
           description: The ID of the [database token](/influxdb3/cloud-dedicated/admin/tokens/database/) to delete
           required: true
           schema:
-            $ref: '#/components/schemas/UuidV4'
+            $ref: "#/components/schemas/UuidV4"
       responses:
-        '204':
+        "204":
           description: The database token was successfully deleted
-          $ref: '#/components/responses/NoContent'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
+          $ref: "#/components/responses/NoContent"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
       x-codeSamples:
         - label: cURL
           lang: Shell
@@ -1576,7 +1636,7 @@ components:
       type: string
       format: date-time
       examples:
-        - '2023-12-21T17:32:28Z'
+        - "2023-12-21T17:32:28Z"
     UuidV4:
       type: string
       format: uuid
@@ -1625,9 +1685,9 @@ components:
       description: |
         A template for [partitioning](/influxdb3/cloud-dedicated/admin/custom-partitions/) a cluster database.
 
-        Each template part is evaluated in sequence, concatinating the final
-        partition key from the output of each part, delimited by the partition
-        key delimiter `|`.
+        Each partition template part is evaluated in sequence.
+        The outputs from each part are concatenated with the
+        `|` delimiter to form the final partition key.
 
         For example, using the partition template below:
 
@@ -1674,10 +1734,10 @@ components:
         so are also not percent-encoded and/or truncated.
       type: array
       items:
-        $ref: '#/components/schemas/ClusterDatabasePartitionTemplatePart'
+        $ref: "#/components/schemas/ClusterDatabasePartitionTemplatePart"
       examples:
         - - type: time
-            value: '%Y'
+            value: "%Y"
           - type: tag
             value: bananas
           - type: tag
@@ -1692,12 +1752,12 @@ components:
     ClusterDatabasePartitionTemplatePart:
       description: A sub-part of a `PartitionTemplate`
       anyOf:
-        - $ref: '#/components/schemas/ClusterDatabasePartitionTemplatePartTagValue'
-        - $ref: '#/components/schemas/ClusterDatabasePartitionTemplatePartTimeFormat'
-        - $ref: '#/components/schemas/ClusterDatabasePartitionTemplatePartBucket'
+        - $ref: "#/components/schemas/ClusterDatabasePartitionTemplatePartTagValue"
+        - $ref: "#/components/schemas/ClusterDatabasePartitionTemplatePartTimeFormat"
+        - $ref: "#/components/schemas/ClusterDatabasePartitionTemplatePartBucket"
       examples:
         - type: time
-          value: '%Y'
+          value: "%Y"
         - type: tag
           value: bananas
         - type: tag
@@ -1738,7 +1798,7 @@ components:
           minLength: 1
       examples:
         - type: time
-          value: '%Y'
+          value: "%Y"
     ClusterDatabasePartitionTemplatePartBucket:
       description: |
         A bucketing matcher that sorts data through a uniform hash function on the values of the given tag name.
@@ -1785,55 +1845,67 @@ components:
       description: A resource value for a [database token](/influxdb3/cloud-dedicated/admin/tokens/database/) permission that refers to all databases
       type: string
       enum:
-        - '*'
+        - "*"
     DatabaseTokenPermissionAction:
       description: The action the [database token](/influxdb3/cloud-dedicated/admin/tokens/database/) permission allows
       type: string
     DatabaseTokenPermissionResource:
       description: The resource the [database token](/influxdb3/cloud-dedicated/admin/tokens/database/) permission applies to
       anyOf:
-        - $ref: '#/components/schemas/ClusterDatabaseName'
-        - $ref: '#/components/schemas/DatabaseTokenResourceAllDatabases'
+        - $ref: "#/components/schemas/ClusterDatabaseName"
+        - $ref: "#/components/schemas/DatabaseTokenResourceAllDatabases"
       examples:
         - DatabaseOne
         - DatabaseTwo
-        - '*'
+        - "*"
     DatabaseTokenPermission:
       description: The description of the database token
       type: object
       properties:
         action:
-          $ref: '#/components/schemas/DatabaseTokenPermissionAction'
+          $ref: "#/components/schemas/DatabaseTokenPermissionAction"
         resource:
-          $ref: '#/components/schemas/DatabaseTokenPermissionResource'
+          $ref: "#/components/schemas/DatabaseTokenPermissionResource"
       examples:
         - action: read
           resource: DatabaseOne
         - action: write
           resource: DatabaseTwo
         - action: write
-          resource: '*'
+          resource: "*"
     DatabaseTokenPermissions:
       description: The list of permissions the [database token](/influxdb3/cloud-dedicated/admin/tokens/database/) allows
       type: array
       items:
-        $ref: '#/components/schemas/DatabaseTokenPermission'
+        $ref: "#/components/schemas/DatabaseTokenPermission"
       examples:
         - - action: read
             resource: DatabaseOne
           - action: write
             resource: DatabaseTwo
         - - action: write
-            resource: '*'
+            resource: "*"
     DatabaseTokenCreatedAt:
       description: |
         The date and time that the [database token](/influxdb3/cloud-dedicated/admin/tokens/database/) was created
 
         Uses RFC3339 format
-      $ref: '#/components/schemas/DateTimeRfc3339'
+      $ref: "#/components/schemas/DateTimeRfc3339"
       examples:
-        - '2023-12-21T17:32:28.000Z'
-        - '2024-03-02T04:20:19.000Z'
+        - "2023-12-21T17:32:28.000Z"
+        - "2024-03-02T04:20:19.000Z"
+    DatabaseTokenExpiresAt:
+      description: |
+        The date and time that the database token expires, if applicable
+
+        Uses RFC3339 format
+      $ref: "#/components/schemas/DateTimeRfc3339"
+    DatabaseTokenRevokedAt:
+      description: |
+        The date and time that the database token was revoked, if applicable
+
+        Uses RFC3339 format
+      $ref: "#/components/schemas/DateTimeRfc3339"
     DatabaseTokenAccessToken:
       description: |
         The access token that can be used to authenticate query and write requests to the cluster
@@ -1855,7 +1927,7 @@ components:
                 type: integer
                 enum:
                   - 400
-            $ref: '#/components/schemas/Error'
+            $ref: "#/components/schemas/Error"
           example:
             code: 400
             message: bad request
@@ -1869,7 +1941,7 @@ components:
                 type: integer
                 enum:
                   - 401
-            $ref: '#/components/schemas/Error'
+            $ref: "#/components/schemas/Error"
           example:
             code: 401
             message: unauthorized
@@ -1883,7 +1955,7 @@ components:
                 type: integer
                 enum:
                   - 403
-            $ref: '#/components/schemas/Error'
+            $ref: "#/components/schemas/Error"
           example:
             code: 403
             message: forbidden
@@ -1897,7 +1969,7 @@ components:
                 type: integer
                 enum:
                   - 404
-            $ref: '#/components/schemas/Error'
+            $ref: "#/components/schemas/Error"
           example:
             code: 404
             message: not found
@@ -1911,7 +1983,7 @@ components:
                 type: integer
                 enum:
                   - 409
-            $ref: '#/components/schemas/Error'
+            $ref: "#/components/schemas/Error"
           example:
             code: 409
             message: conflict
@@ -1925,7 +1997,7 @@ components:
                 type: integer
                 enum:
                   - 500
-            $ref: '#/components/schemas/Error'
+            $ref: "#/components/schemas/Error"
           example:
             code: 500
             message: internal server error
@@ -1944,7 +2016,7 @@ x-tagGroups:
   - name: Using the Management API
     tags:
       - Authentication
-      - Examples
+      - Quickstart
   - name: All endpoints
     tags:
       - Database tokens
