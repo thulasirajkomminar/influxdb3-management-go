@@ -97,6 +97,9 @@ type ClientInterface interface {
 
 	CreateClusterDatabase(ctx context.Context, accountId UuidV4, clusterId UuidV4, body CreateClusterDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// UndeleteClusterDatabase request
+	UndeleteClusterDatabase(ctx context.Context, accountId UuidV4, clusterId UuidV4, databaseId ClusterDatabaseId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// DeleteClusterDatabase request
 	DeleteClusterDatabase(ctx context.Context, accountId UuidV4, clusterId UuidV4, databaseName ClusterDatabaseName, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -105,10 +108,26 @@ type ClientInterface interface {
 
 	UpdateClusterDatabase(ctx context.Context, accountId UuidV4, clusterId UuidV4, databaseName ClusterDatabaseName, body UpdateClusterDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// RenameClusterDatabaseWithBody request with any body
+	RenameClusterDatabaseWithBody(ctx context.Context, accountId UuidV4, clusterId UuidV4, databaseName ClusterDatabaseName, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	RenameClusterDatabase(ctx context.Context, accountId UuidV4, clusterId UuidV4, databaseName ClusterDatabaseName, body RenameClusterDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// CreateClusterDatabaseTableWithBody request with any body
 	CreateClusterDatabaseTableWithBody(ctx context.Context, accountId UuidV4, clusterId UuidV4, databaseName ClusterDatabaseName, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	CreateClusterDatabaseTable(ctx context.Context, accountId UuidV4, clusterId UuidV4, databaseName ClusterDatabaseName, body CreateClusterDatabaseTableJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UndeleteClusterDatabaseTable request
+	UndeleteClusterDatabaseTable(ctx context.Context, accountId UuidV4, clusterId UuidV4, databaseName ClusterDatabaseName, tableId int64, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteClusterDatabaseTable request
+	DeleteClusterDatabaseTable(ctx context.Context, accountId UuidV4, clusterId UuidV4, databaseName ClusterDatabaseName, tableName ClusterDatabaseTableName, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RenameClusterDatabaseTableWithBody request with any body
+	RenameClusterDatabaseTableWithBody(ctx context.Context, accountId UuidV4, clusterId UuidV4, databaseName ClusterDatabaseName, tableName ClusterDatabaseTableName, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	RenameClusterDatabaseTable(ctx context.Context, accountId UuidV4, clusterId UuidV4, databaseName ClusterDatabaseName, tableName ClusterDatabaseTableName, body RenameClusterDatabaseTableJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetDatabaseTokens request
 	GetDatabaseTokens(ctx context.Context, accountId UuidV4, clusterId UuidV4, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -166,6 +185,18 @@ func (c *Client) CreateClusterDatabase(ctx context.Context, accountId UuidV4, cl
 	return c.Client.Do(req)
 }
 
+func (c *Client) UndeleteClusterDatabase(ctx context.Context, accountId UuidV4, clusterId UuidV4, databaseId ClusterDatabaseId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUndeleteClusterDatabaseRequest(c.Server, accountId, clusterId, databaseId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) DeleteClusterDatabase(ctx context.Context, accountId UuidV4, clusterId UuidV4, databaseName ClusterDatabaseName, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewDeleteClusterDatabaseRequest(c.Server, accountId, clusterId, databaseName)
 	if err != nil {
@@ -202,6 +233,30 @@ func (c *Client) UpdateClusterDatabase(ctx context.Context, accountId UuidV4, cl
 	return c.Client.Do(req)
 }
 
+func (c *Client) RenameClusterDatabaseWithBody(ctx context.Context, accountId UuidV4, clusterId UuidV4, databaseName ClusterDatabaseName, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRenameClusterDatabaseRequestWithBody(c.Server, accountId, clusterId, databaseName, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RenameClusterDatabase(ctx context.Context, accountId UuidV4, clusterId UuidV4, databaseName ClusterDatabaseName, body RenameClusterDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRenameClusterDatabaseRequest(c.Server, accountId, clusterId, databaseName, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) CreateClusterDatabaseTableWithBody(ctx context.Context, accountId UuidV4, clusterId UuidV4, databaseName ClusterDatabaseName, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCreateClusterDatabaseTableRequestWithBody(c.Server, accountId, clusterId, databaseName, contentType, body)
 	if err != nil {
@@ -216,6 +271,54 @@ func (c *Client) CreateClusterDatabaseTableWithBody(ctx context.Context, account
 
 func (c *Client) CreateClusterDatabaseTable(ctx context.Context, accountId UuidV4, clusterId UuidV4, databaseName ClusterDatabaseName, body CreateClusterDatabaseTableJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCreateClusterDatabaseTableRequest(c.Server, accountId, clusterId, databaseName, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UndeleteClusterDatabaseTable(ctx context.Context, accountId UuidV4, clusterId UuidV4, databaseName ClusterDatabaseName, tableId int64, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUndeleteClusterDatabaseTableRequest(c.Server, accountId, clusterId, databaseName, tableId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteClusterDatabaseTable(ctx context.Context, accountId UuidV4, clusterId UuidV4, databaseName ClusterDatabaseName, tableName ClusterDatabaseTableName, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteClusterDatabaseTableRequest(c.Server, accountId, clusterId, databaseName, tableName)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RenameClusterDatabaseTableWithBody(ctx context.Context, accountId UuidV4, clusterId UuidV4, databaseName ClusterDatabaseName, tableName ClusterDatabaseTableName, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRenameClusterDatabaseTableRequestWithBody(c.Server, accountId, clusterId, databaseName, tableName, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RenameClusterDatabaseTable(ctx context.Context, accountId UuidV4, clusterId UuidV4, databaseName ClusterDatabaseName, tableName ClusterDatabaseTableName, body RenameClusterDatabaseTableJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRenameClusterDatabaseTableRequest(c.Server, accountId, clusterId, databaseName, tableName, body)
 	if err != nil {
 		return nil, err
 	}
@@ -405,6 +508,54 @@ func NewCreateClusterDatabaseRequestWithBody(server string, accountId UuidV4, cl
 	return req, nil
 }
 
+// NewUndeleteClusterDatabaseRequest generates requests for UndeleteClusterDatabase
+func NewUndeleteClusterDatabaseRequest(server string, accountId UuidV4, clusterId UuidV4, databaseId ClusterDatabaseId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "accountId", runtime.ParamLocationPath, accountId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "clusterId", runtime.ParamLocationPath, clusterId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithLocation("simple", false, "databaseId", runtime.ParamLocationPath, databaseId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/accounts/%s/clusters/%s/databases/%s/undelete", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewDeleteClusterDatabaseRequest generates requests for DeleteClusterDatabase
 func NewDeleteClusterDatabaseRequest(server string, accountId UuidV4, clusterId UuidV4, databaseName ClusterDatabaseName) (*http.Request, error) {
 	var err error
@@ -514,6 +665,67 @@ func NewUpdateClusterDatabaseRequestWithBody(server string, accountId UuidV4, cl
 	return req, nil
 }
 
+// NewRenameClusterDatabaseRequest calls the generic RenameClusterDatabase builder with application/json body
+func NewRenameClusterDatabaseRequest(server string, accountId UuidV4, clusterId UuidV4, databaseName ClusterDatabaseName, body RenameClusterDatabaseJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewRenameClusterDatabaseRequestWithBody(server, accountId, clusterId, databaseName, "application/json", bodyReader)
+}
+
+// NewRenameClusterDatabaseRequestWithBody generates requests for RenameClusterDatabase with any type of body
+func NewRenameClusterDatabaseRequestWithBody(server string, accountId UuidV4, clusterId UuidV4, databaseName ClusterDatabaseName, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "accountId", runtime.ParamLocationPath, accountId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "clusterId", runtime.ParamLocationPath, clusterId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithLocation("simple", false, "databaseName", runtime.ParamLocationPath, databaseName)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/accounts/%s/clusters/%s/databases/%s/rename", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewCreateClusterDatabaseTableRequest calls the generic CreateClusterDatabaseTable builder with application/json body
 func NewCreateClusterDatabaseTableRequest(server string, accountId UuidV4, clusterId UuidV4, databaseName ClusterDatabaseName, body CreateClusterDatabaseTableJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -566,6 +778,184 @@ func NewCreateClusterDatabaseTableRequestWithBody(server string, accountId UuidV
 	}
 
 	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewUndeleteClusterDatabaseTableRequest generates requests for UndeleteClusterDatabaseTable
+func NewUndeleteClusterDatabaseTableRequest(server string, accountId UuidV4, clusterId UuidV4, databaseName ClusterDatabaseName, tableId int64) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "accountId", runtime.ParamLocationPath, accountId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "clusterId", runtime.ParamLocationPath, clusterId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithLocation("simple", false, "databaseName", runtime.ParamLocationPath, databaseName)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam3 string
+
+	pathParam3, err = runtime.StyleParamWithLocation("simple", false, "tableId", runtime.ParamLocationPath, tableId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/accounts/%s/clusters/%s/databases/%s/tables/%s/undelete", pathParam0, pathParam1, pathParam2, pathParam3)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewDeleteClusterDatabaseTableRequest generates requests for DeleteClusterDatabaseTable
+func NewDeleteClusterDatabaseTableRequest(server string, accountId UuidV4, clusterId UuidV4, databaseName ClusterDatabaseName, tableName ClusterDatabaseTableName) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "accountId", runtime.ParamLocationPath, accountId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "clusterId", runtime.ParamLocationPath, clusterId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithLocation("simple", false, "databaseName", runtime.ParamLocationPath, databaseName)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam3 string
+
+	pathParam3, err = runtime.StyleParamWithLocation("simple", false, "tableName", runtime.ParamLocationPath, tableName)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/accounts/%s/clusters/%s/databases/%s/tables/%s", pathParam0, pathParam1, pathParam2, pathParam3)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewRenameClusterDatabaseTableRequest calls the generic RenameClusterDatabaseTable builder with application/json body
+func NewRenameClusterDatabaseTableRequest(server string, accountId UuidV4, clusterId UuidV4, databaseName ClusterDatabaseName, tableName ClusterDatabaseTableName, body RenameClusterDatabaseTableJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewRenameClusterDatabaseTableRequestWithBody(server, accountId, clusterId, databaseName, tableName, "application/json", bodyReader)
+}
+
+// NewRenameClusterDatabaseTableRequestWithBody generates requests for RenameClusterDatabaseTable with any type of body
+func NewRenameClusterDatabaseTableRequestWithBody(server string, accountId UuidV4, clusterId UuidV4, databaseName ClusterDatabaseName, tableName ClusterDatabaseTableName, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "accountId", runtime.ParamLocationPath, accountId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "clusterId", runtime.ParamLocationPath, clusterId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithLocation("simple", false, "databaseName", runtime.ParamLocationPath, databaseName)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam3 string
+
+	pathParam3, err = runtime.StyleParamWithLocation("simple", false, "tableName", runtime.ParamLocationPath, tableName)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/accounts/%s/clusters/%s/databases/%s/tables/%s/rename", pathParam0, pathParam1, pathParam2, pathParam3)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -878,6 +1268,9 @@ type ClientWithResponsesInterface interface {
 
 	CreateClusterDatabaseWithResponse(ctx context.Context, accountId UuidV4, clusterId UuidV4, body CreateClusterDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateClusterDatabaseResponse, error)
 
+	// UndeleteClusterDatabaseWithResponse request
+	UndeleteClusterDatabaseWithResponse(ctx context.Context, accountId UuidV4, clusterId UuidV4, databaseId ClusterDatabaseId, reqEditors ...RequestEditorFn) (*UndeleteClusterDatabaseResponse, error)
+
 	// DeleteClusterDatabaseWithResponse request
 	DeleteClusterDatabaseWithResponse(ctx context.Context, accountId UuidV4, clusterId UuidV4, databaseName ClusterDatabaseName, reqEditors ...RequestEditorFn) (*DeleteClusterDatabaseResponse, error)
 
@@ -886,10 +1279,26 @@ type ClientWithResponsesInterface interface {
 
 	UpdateClusterDatabaseWithResponse(ctx context.Context, accountId UuidV4, clusterId UuidV4, databaseName ClusterDatabaseName, body UpdateClusterDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateClusterDatabaseResponse, error)
 
+	// RenameClusterDatabaseWithBodyWithResponse request with any body
+	RenameClusterDatabaseWithBodyWithResponse(ctx context.Context, accountId UuidV4, clusterId UuidV4, databaseName ClusterDatabaseName, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RenameClusterDatabaseResponse, error)
+
+	RenameClusterDatabaseWithResponse(ctx context.Context, accountId UuidV4, clusterId UuidV4, databaseName ClusterDatabaseName, body RenameClusterDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*RenameClusterDatabaseResponse, error)
+
 	// CreateClusterDatabaseTableWithBodyWithResponse request with any body
 	CreateClusterDatabaseTableWithBodyWithResponse(ctx context.Context, accountId UuidV4, clusterId UuidV4, databaseName ClusterDatabaseName, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateClusterDatabaseTableResponse, error)
 
 	CreateClusterDatabaseTableWithResponse(ctx context.Context, accountId UuidV4, clusterId UuidV4, databaseName ClusterDatabaseName, body CreateClusterDatabaseTableJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateClusterDatabaseTableResponse, error)
+
+	// UndeleteClusterDatabaseTableWithResponse request
+	UndeleteClusterDatabaseTableWithResponse(ctx context.Context, accountId UuidV4, clusterId UuidV4, databaseName ClusterDatabaseName, tableId int64, reqEditors ...RequestEditorFn) (*UndeleteClusterDatabaseTableResponse, error)
+
+	// DeleteClusterDatabaseTableWithResponse request
+	DeleteClusterDatabaseTableWithResponse(ctx context.Context, accountId UuidV4, clusterId UuidV4, databaseName ClusterDatabaseName, tableName ClusterDatabaseTableName, reqEditors ...RequestEditorFn) (*DeleteClusterDatabaseTableResponse, error)
+
+	// RenameClusterDatabaseTableWithBodyWithResponse request with any body
+	RenameClusterDatabaseTableWithBodyWithResponse(ctx context.Context, accountId UuidV4, clusterId UuidV4, databaseName ClusterDatabaseName, tableName ClusterDatabaseTableName, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RenameClusterDatabaseTableResponse, error)
+
+	RenameClusterDatabaseTableWithResponse(ctx context.Context, accountId UuidV4, clusterId UuidV4, databaseName ClusterDatabaseName, tableName ClusterDatabaseTableName, body RenameClusterDatabaseTableJSONRequestBody, reqEditors ...RequestEditorFn) (*RenameClusterDatabaseTableResponse, error)
 
 	// GetDatabaseTokensWithResponse request
 	GetDatabaseTokensWithResponse(ctx context.Context, accountId UuidV4, clusterId UuidV4, reqEditors ...RequestEditorFn) (*GetDatabaseTokensResponse, error)
@@ -1102,6 +1511,104 @@ func (r CreateClusterDatabaseResponse) StatusCode() int {
 	return 0
 }
 
+type UndeleteClusterDatabaseResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		AccountId UuidV4 `json:"accountId"`
+		ClusterId UuidV4 `json:"clusterId"`
+
+		// Id The ID of the cluster database
+		Id ClusterDatabaseId `json:"id"`
+
+		// MaxColumnsPerTable The maximum number of columns per table for the cluster database
+		MaxColumnsPerTable ClusterDatabaseMaxColumnsPerTable `json:"maxColumnsPerTable"`
+
+		// MaxTables The maximum number of tables for the cluster database
+		MaxTables ClusterDatabaseMaxTables `json:"maxTables"`
+
+		// Name The name of the cluster database
+		Name ClusterDatabaseName `json:"name"`
+
+		// PartitionTemplate A template for [partitioning](/influxdb3/cloud-dedicated/admin/custom-partitions/) a cluster database.
+		//
+		// Each partition template part is evaluated in sequence.
+		// The outputs from each part are concatenated with the
+		// `|` delimiter to form the final partition key.
+		//
+		// For example, using the partition template below:
+		//
+		// ```json
+		// [
+		//   {
+		//     "type": "time",
+		//     "value": "%Y"
+		//   },
+		//   {
+		//     "type": "tag",
+		//     "value": "bananas"
+		//   },
+		//   {
+		//     "type": "tag",
+		//     "value": "plátanos"
+		//   },
+		//   {
+		//     "type": "bucket",
+		//     "value": {
+		//       "tagName": "c",
+		//       "numberOfBuckets": 10
+		//     }
+		//   }
+		// ]
+		// ```
+		//
+		// The following partition keys are derived:
+		//
+		//   * `time=2023-01-01, a=bananas, b=plátanos, c=ananas`   -> `2023|bananas|plátanos|5`
+		//   * `time=2023-01-01, b=plátanos`                        -> `2023|!|plátanos|!`
+		//   * `time=2023-01-01, another=cat, b=plátanos`           -> `2023|!|plátanos|!`
+		//   * `time=2023-01-01`                                    -> `2023|!|!|!`
+		//   * `time=2023-01-01, a=cat|dog, b=!, c=!`               -> `2023|cat%7Cdog|%21|8`
+		//   * `time=2023-01-01, a=%50, c=%50`                      -> `2023|%2550|!|9`
+		//   * `time=2023-01-01, a=, c=`                            -> `2023|^|!|0`
+		//   * `time=2023-01-01, a=<long string>`                   -> `2023|<long string>#|!|!`
+		//   * `time=2023-01-01, c=<long string>`                   -> `2023|!|!|<bucket ID for untruncated long string>`
+		//
+		// When using the default [partitioning](/influxdb3/cloud-dedicated/admin/custom-partitions/) template (YYYY-MM-DD) there is no
+		// encoding necessary, as the derived partition key contains a single part, and
+		// no reserved characters. [`TemplatePart::Bucket`] parts by definition will
+		// always be within the part length limit and contain no restricted characters
+		// so are also not percent-encoded and/or truncated.
+		PartitionTemplate *ClusterDatabasePartitionTemplate `json:"partitionTemplate,omitempty"`
+
+		// RetentionPeriod The retention period of the [cluster database](/influxdb3/cloud-dedicated/admin/databases/) in nanoseconds, if applicable
+		//
+		// If the retention period is not set or is set to 0, the database will have infinite retention
+		RetentionPeriod *ClusterDatabaseRetentionPeriod `json:"retentionPeriod,omitempty"`
+	}
+	JSON400 *BadRequest
+	JSON401 *Unauthorized
+	JSON403 *Forbidden
+	JSON404 *NotFound
+	JSON500 *InternalServerError
+}
+
+// Status returns HTTPResponse.Status
+func (r UndeleteClusterDatabaseResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UndeleteClusterDatabaseResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type DeleteClusterDatabaseResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -1166,6 +1673,105 @@ func (r UpdateClusterDatabaseResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r UpdateClusterDatabaseResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type RenameClusterDatabaseResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		AccountId UuidV4 `json:"accountId"`
+		ClusterId UuidV4 `json:"clusterId"`
+
+		// Id The ID of the cluster database
+		Id ClusterDatabaseId `json:"id"`
+
+		// MaxColumnsPerTable The maximum number of columns per table for the cluster database
+		MaxColumnsPerTable ClusterDatabaseMaxColumnsPerTable `json:"maxColumnsPerTable"`
+
+		// MaxTables The maximum number of tables for the cluster database
+		MaxTables ClusterDatabaseMaxTables `json:"maxTables"`
+
+		// Name The name of the cluster database
+		Name ClusterDatabaseName `json:"name"`
+
+		// PartitionTemplate A template for [partitioning](/influxdb3/cloud-dedicated/admin/custom-partitions/) a cluster database.
+		//
+		// Each partition template part is evaluated in sequence.
+		// The outputs from each part are concatenated with the
+		// `|` delimiter to form the final partition key.
+		//
+		// For example, using the partition template below:
+		//
+		// ```json
+		// [
+		//   {
+		//     "type": "time",
+		//     "value": "%Y"
+		//   },
+		//   {
+		//     "type": "tag",
+		//     "value": "bananas"
+		//   },
+		//   {
+		//     "type": "tag",
+		//     "value": "plátanos"
+		//   },
+		//   {
+		//     "type": "bucket",
+		//     "value": {
+		//       "tagName": "c",
+		//       "numberOfBuckets": 10
+		//     }
+		//   }
+		// ]
+		// ```
+		//
+		// The following partition keys are derived:
+		//
+		//   * `time=2023-01-01, a=bananas, b=plátanos, c=ananas`   -> `2023|bananas|plátanos|5`
+		//   * `time=2023-01-01, b=plátanos`                        -> `2023|!|plátanos|!`
+		//   * `time=2023-01-01, another=cat, b=plátanos`           -> `2023|!|plátanos|!`
+		//   * `time=2023-01-01`                                    -> `2023|!|!|!`
+		//   * `time=2023-01-01, a=cat|dog, b=!, c=!`               -> `2023|cat%7Cdog|%21|8`
+		//   * `time=2023-01-01, a=%50, c=%50`                      -> `2023|%2550|!|9`
+		//   * `time=2023-01-01, a=, c=`                            -> `2023|^|!|0`
+		//   * `time=2023-01-01, a=<long string>`                   -> `2023|<long string>#|!|!`
+		//   * `time=2023-01-01, c=<long string>`                   -> `2023|!|!|<bucket ID for untruncated long string>`
+		//
+		// When using the default [partitioning](/influxdb3/cloud-dedicated/admin/custom-partitions/) template (YYYY-MM-DD) there is no
+		// encoding necessary, as the derived partition key contains a single part, and
+		// no reserved characters. [`TemplatePart::Bucket`] parts by definition will
+		// always be within the part length limit and contain no restricted characters
+		// so are also not percent-encoded and/or truncated.
+		PartitionTemplate *ClusterDatabasePartitionTemplate `json:"partitionTemplate,omitempty"`
+
+		// RetentionPeriod The retention period of the [cluster database](/influxdb3/cloud-dedicated/admin/databases/) in nanoseconds, if applicable
+		//
+		// If the retention period is not set or is set to 0, the database will have infinite retention
+		RetentionPeriod *ClusterDatabaseRetentionPeriod `json:"retentionPeriod,omitempty"`
+	}
+	JSON400 *BadRequest
+	JSON401 *Unauthorized
+	JSON403 *Forbidden
+	JSON404 *NotFound
+	JSON409 *Conflict
+	JSON500 *InternalServerError
+}
+
+// Status returns HTTPResponse.Status
+func (r RenameClusterDatabaseResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RenameClusterDatabaseResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -1254,6 +1860,213 @@ func (r CreateClusterDatabaseTableResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r CreateClusterDatabaseTableResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type UndeleteClusterDatabaseTableResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		AccountId UuidV4 `json:"accountId"`
+		ClusterId UuidV4 `json:"clusterId"`
+
+		// DatabaseName The name of the cluster database
+		DatabaseName ClusterDatabaseName `json:"databaseName"`
+
+		// Id The ID of the table
+		Id int64 `json:"id"`
+
+		// Name The name of the [cluster database](/influxdb3/cloud-dedicated/admin/databases/) table
+		Name ClusterDatabaseTableName `json:"name"`
+
+		// PartitionTemplate A template for [partitioning](/influxdb3/cloud-dedicated/admin/custom-partitions/) a cluster database.
+		//
+		// Each partition template part is evaluated in sequence.
+		// The outputs from each part are concatenated with the
+		// `|` delimiter to form the final partition key.
+		//
+		// For example, using the partition template below:
+		//
+		// ```json
+		// [
+		//   {
+		//     "type": "time",
+		//     "value": "%Y"
+		//   },
+		//   {
+		//     "type": "tag",
+		//     "value": "bananas"
+		//   },
+		//   {
+		//     "type": "tag",
+		//     "value": "plátanos"
+		//   },
+		//   {
+		//     "type": "bucket",
+		//     "value": {
+		//       "tagName": "c",
+		//       "numberOfBuckets": 10
+		//     }
+		//   }
+		// ]
+		// ```
+		//
+		// The following partition keys are derived:
+		//
+		//   * `time=2023-01-01, a=bananas, b=plátanos, c=ananas`   -> `2023|bananas|plátanos|5`
+		//   * `time=2023-01-01, b=plátanos`                        -> `2023|!|plátanos|!`
+		//   * `time=2023-01-01, another=cat, b=plátanos`           -> `2023|!|plátanos|!`
+		//   * `time=2023-01-01`                                    -> `2023|!|!|!`
+		//   * `time=2023-01-01, a=cat|dog, b=!, c=!`               -> `2023|cat%7Cdog|%21|8`
+		//   * `time=2023-01-01, a=%50, c=%50`                      -> `2023|%2550|!|9`
+		//   * `time=2023-01-01, a=, c=`                            -> `2023|^|!|0`
+		//   * `time=2023-01-01, a=<long string>`                   -> `2023|<long string>#|!|!`
+		//   * `time=2023-01-01, c=<long string>`                   -> `2023|!|!|<bucket ID for untruncated long string>`
+		//
+		// When using the default [partitioning](/influxdb3/cloud-dedicated/admin/custom-partitions/) template (YYYY-MM-DD) there is no
+		// encoding necessary, as the derived partition key contains a single part, and
+		// no reserved characters. [`TemplatePart::Bucket`] parts by definition will
+		// always be within the part length limit and contain no restricted characters
+		// so are also not percent-encoded and/or truncated.
+		PartitionTemplate *ClusterDatabasePartitionTemplate `json:"partitionTemplate,omitempty"`
+	}
+	JSON400 *BadRequest
+	JSON401 *Unauthorized
+	JSON403 *Forbidden
+	JSON404 *NotFound
+	JSON500 *InternalServerError
+}
+
+// Status returns HTTPResponse.Status
+func (r UndeleteClusterDatabaseTableResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UndeleteClusterDatabaseTableResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DeleteClusterDatabaseTableResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *BadRequest
+	JSON401      *Unauthorized
+	JSON403      *Forbidden
+	JSON404      *NotFound
+	JSON500      *InternalServerError
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteClusterDatabaseTableResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteClusterDatabaseTableResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type RenameClusterDatabaseTableResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		AccountId UuidV4 `json:"accountId"`
+		ClusterId UuidV4 `json:"clusterId"`
+
+		// DatabaseName The name of the cluster database
+		DatabaseName ClusterDatabaseName `json:"databaseName"`
+
+		// Id The ID of the table
+		Id int64 `json:"id"`
+
+		// Name The name of the [cluster database](/influxdb3/cloud-dedicated/admin/databases/) table
+		Name ClusterDatabaseTableName `json:"name"`
+
+		// PartitionTemplate A template for [partitioning](/influxdb3/cloud-dedicated/admin/custom-partitions/) a cluster database.
+		//
+		// Each partition template part is evaluated in sequence.
+		// The outputs from each part are concatenated with the
+		// `|` delimiter to form the final partition key.
+		//
+		// For example, using the partition template below:
+		//
+		// ```json
+		// [
+		//   {
+		//     "type": "time",
+		//     "value": "%Y"
+		//   },
+		//   {
+		//     "type": "tag",
+		//     "value": "bananas"
+		//   },
+		//   {
+		//     "type": "tag",
+		//     "value": "plátanos"
+		//   },
+		//   {
+		//     "type": "bucket",
+		//     "value": {
+		//       "tagName": "c",
+		//       "numberOfBuckets": 10
+		//     }
+		//   }
+		// ]
+		// ```
+		//
+		// The following partition keys are derived:
+		//
+		//   * `time=2023-01-01, a=bananas, b=plátanos, c=ananas`   -> `2023|bananas|plátanos|5`
+		//   * `time=2023-01-01, b=plátanos`                        -> `2023|!|plátanos|!`
+		//   * `time=2023-01-01, another=cat, b=plátanos`           -> `2023|!|plátanos|!`
+		//   * `time=2023-01-01`                                    -> `2023|!|!|!`
+		//   * `time=2023-01-01, a=cat|dog, b=!, c=!`               -> `2023|cat%7Cdog|%21|8`
+		//   * `time=2023-01-01, a=%50, c=%50`                      -> `2023|%2550|!|9`
+		//   * `time=2023-01-01, a=, c=`                            -> `2023|^|!|0`
+		//   * `time=2023-01-01, a=<long string>`                   -> `2023|<long string>#|!|!`
+		//   * `time=2023-01-01, c=<long string>`                   -> `2023|!|!|<bucket ID for untruncated long string>`
+		//
+		// When using the default [partitioning](/influxdb3/cloud-dedicated/admin/custom-partitions/) template (YYYY-MM-DD) there is no
+		// encoding necessary, as the derived partition key contains a single part, and
+		// no reserved characters. [`TemplatePart::Bucket`] parts by definition will
+		// always be within the part length limit and contain no restricted characters
+		// so are also not percent-encoded and/or truncated.
+		PartitionTemplate *ClusterDatabasePartitionTemplate `json:"partitionTemplate,omitempty"`
+	}
+	JSON400 *BadRequest
+	JSON401 *Unauthorized
+	JSON403 *Forbidden
+	JSON404 *NotFound
+	JSON409 *Conflict
+	JSON500 *InternalServerError
+}
+
+// Status returns HTTPResponse.Status
+func (r RenameClusterDatabaseTableResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RenameClusterDatabaseTableResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -1478,6 +2291,15 @@ func (c *ClientWithResponses) CreateClusterDatabaseWithResponse(ctx context.Cont
 	return ParseCreateClusterDatabaseResponse(rsp)
 }
 
+// UndeleteClusterDatabaseWithResponse request returning *UndeleteClusterDatabaseResponse
+func (c *ClientWithResponses) UndeleteClusterDatabaseWithResponse(ctx context.Context, accountId UuidV4, clusterId UuidV4, databaseId ClusterDatabaseId, reqEditors ...RequestEditorFn) (*UndeleteClusterDatabaseResponse, error) {
+	rsp, err := c.UndeleteClusterDatabase(ctx, accountId, clusterId, databaseId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUndeleteClusterDatabaseResponse(rsp)
+}
+
 // DeleteClusterDatabaseWithResponse request returning *DeleteClusterDatabaseResponse
 func (c *ClientWithResponses) DeleteClusterDatabaseWithResponse(ctx context.Context, accountId UuidV4, clusterId UuidV4, databaseName ClusterDatabaseName, reqEditors ...RequestEditorFn) (*DeleteClusterDatabaseResponse, error) {
 	rsp, err := c.DeleteClusterDatabase(ctx, accountId, clusterId, databaseName, reqEditors...)
@@ -1504,6 +2326,23 @@ func (c *ClientWithResponses) UpdateClusterDatabaseWithResponse(ctx context.Cont
 	return ParseUpdateClusterDatabaseResponse(rsp)
 }
 
+// RenameClusterDatabaseWithBodyWithResponse request with arbitrary body returning *RenameClusterDatabaseResponse
+func (c *ClientWithResponses) RenameClusterDatabaseWithBodyWithResponse(ctx context.Context, accountId UuidV4, clusterId UuidV4, databaseName ClusterDatabaseName, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RenameClusterDatabaseResponse, error) {
+	rsp, err := c.RenameClusterDatabaseWithBody(ctx, accountId, clusterId, databaseName, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRenameClusterDatabaseResponse(rsp)
+}
+
+func (c *ClientWithResponses) RenameClusterDatabaseWithResponse(ctx context.Context, accountId UuidV4, clusterId UuidV4, databaseName ClusterDatabaseName, body RenameClusterDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*RenameClusterDatabaseResponse, error) {
+	rsp, err := c.RenameClusterDatabase(ctx, accountId, clusterId, databaseName, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRenameClusterDatabaseResponse(rsp)
+}
+
 // CreateClusterDatabaseTableWithBodyWithResponse request with arbitrary body returning *CreateClusterDatabaseTableResponse
 func (c *ClientWithResponses) CreateClusterDatabaseTableWithBodyWithResponse(ctx context.Context, accountId UuidV4, clusterId UuidV4, databaseName ClusterDatabaseName, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateClusterDatabaseTableResponse, error) {
 	rsp, err := c.CreateClusterDatabaseTableWithBody(ctx, accountId, clusterId, databaseName, contentType, body, reqEditors...)
@@ -1519,6 +2358,41 @@ func (c *ClientWithResponses) CreateClusterDatabaseTableWithResponse(ctx context
 		return nil, err
 	}
 	return ParseCreateClusterDatabaseTableResponse(rsp)
+}
+
+// UndeleteClusterDatabaseTableWithResponse request returning *UndeleteClusterDatabaseTableResponse
+func (c *ClientWithResponses) UndeleteClusterDatabaseTableWithResponse(ctx context.Context, accountId UuidV4, clusterId UuidV4, databaseName ClusterDatabaseName, tableId int64, reqEditors ...RequestEditorFn) (*UndeleteClusterDatabaseTableResponse, error) {
+	rsp, err := c.UndeleteClusterDatabaseTable(ctx, accountId, clusterId, databaseName, tableId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUndeleteClusterDatabaseTableResponse(rsp)
+}
+
+// DeleteClusterDatabaseTableWithResponse request returning *DeleteClusterDatabaseTableResponse
+func (c *ClientWithResponses) DeleteClusterDatabaseTableWithResponse(ctx context.Context, accountId UuidV4, clusterId UuidV4, databaseName ClusterDatabaseName, tableName ClusterDatabaseTableName, reqEditors ...RequestEditorFn) (*DeleteClusterDatabaseTableResponse, error) {
+	rsp, err := c.DeleteClusterDatabaseTable(ctx, accountId, clusterId, databaseName, tableName, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteClusterDatabaseTableResponse(rsp)
+}
+
+// RenameClusterDatabaseTableWithBodyWithResponse request with arbitrary body returning *RenameClusterDatabaseTableResponse
+func (c *ClientWithResponses) RenameClusterDatabaseTableWithBodyWithResponse(ctx context.Context, accountId UuidV4, clusterId UuidV4, databaseName ClusterDatabaseName, tableName ClusterDatabaseTableName, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RenameClusterDatabaseTableResponse, error) {
+	rsp, err := c.RenameClusterDatabaseTableWithBody(ctx, accountId, clusterId, databaseName, tableName, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRenameClusterDatabaseTableResponse(rsp)
+}
+
+func (c *ClientWithResponses) RenameClusterDatabaseTableWithResponse(ctx context.Context, accountId UuidV4, clusterId UuidV4, databaseName ClusterDatabaseName, tableName ClusterDatabaseTableName, body RenameClusterDatabaseTableJSONRequestBody, reqEditors ...RequestEditorFn) (*RenameClusterDatabaseTableResponse, error) {
+	rsp, err := c.RenameClusterDatabaseTable(ctx, accountId, clusterId, databaseName, tableName, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRenameClusterDatabaseTableResponse(rsp)
 }
 
 // GetDatabaseTokensWithResponse request returning *GetDatabaseTokensResponse
@@ -1847,6 +2721,138 @@ func ParseCreateClusterDatabaseResponse(rsp *http.Response) (*CreateClusterDatab
 	return response, nil
 }
 
+// ParseUndeleteClusterDatabaseResponse parses an HTTP response from a UndeleteClusterDatabaseWithResponse call
+func ParseUndeleteClusterDatabaseResponse(rsp *http.Response) (*UndeleteClusterDatabaseResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UndeleteClusterDatabaseResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			AccountId UuidV4 `json:"accountId"`
+			ClusterId UuidV4 `json:"clusterId"`
+
+			// Id The ID of the cluster database
+			Id ClusterDatabaseId `json:"id"`
+
+			// MaxColumnsPerTable The maximum number of columns per table for the cluster database
+			MaxColumnsPerTable ClusterDatabaseMaxColumnsPerTable `json:"maxColumnsPerTable"`
+
+			// MaxTables The maximum number of tables for the cluster database
+			MaxTables ClusterDatabaseMaxTables `json:"maxTables"`
+
+			// Name The name of the cluster database
+			Name ClusterDatabaseName `json:"name"`
+
+			// PartitionTemplate A template for [partitioning](/influxdb3/cloud-dedicated/admin/custom-partitions/) a cluster database.
+			//
+			// Each partition template part is evaluated in sequence.
+			// The outputs from each part are concatenated with the
+			// `|` delimiter to form the final partition key.
+			//
+			// For example, using the partition template below:
+			//
+			// ```json
+			// [
+			//   {
+			//     "type": "time",
+			//     "value": "%Y"
+			//   },
+			//   {
+			//     "type": "tag",
+			//     "value": "bananas"
+			//   },
+			//   {
+			//     "type": "tag",
+			//     "value": "plátanos"
+			//   },
+			//   {
+			//     "type": "bucket",
+			//     "value": {
+			//       "tagName": "c",
+			//       "numberOfBuckets": 10
+			//     }
+			//   }
+			// ]
+			// ```
+			//
+			// The following partition keys are derived:
+			//
+			//   * `time=2023-01-01, a=bananas, b=plátanos, c=ananas`   -> `2023|bananas|plátanos|5`
+			//   * `time=2023-01-01, b=plátanos`                        -> `2023|!|plátanos|!`
+			//   * `time=2023-01-01, another=cat, b=plátanos`           -> `2023|!|plátanos|!`
+			//   * `time=2023-01-01`                                    -> `2023|!|!|!`
+			//   * `time=2023-01-01, a=cat|dog, b=!, c=!`               -> `2023|cat%7Cdog|%21|8`
+			//   * `time=2023-01-01, a=%50, c=%50`                      -> `2023|%2550|!|9`
+			//   * `time=2023-01-01, a=, c=`                            -> `2023|^|!|0`
+			//   * `time=2023-01-01, a=<long string>`                   -> `2023|<long string>#|!|!`
+			//   * `time=2023-01-01, c=<long string>`                   -> `2023|!|!|<bucket ID for untruncated long string>`
+			//
+			// When using the default [partitioning](/influxdb3/cloud-dedicated/admin/custom-partitions/) template (YYYY-MM-DD) there is no
+			// encoding necessary, as the derived partition key contains a single part, and
+			// no reserved characters. [`TemplatePart::Bucket`] parts by definition will
+			// always be within the part length limit and contain no restricted characters
+			// so are also not percent-encoded and/or truncated.
+			PartitionTemplate *ClusterDatabasePartitionTemplate `json:"partitionTemplate,omitempty"`
+
+			// RetentionPeriod The retention period of the [cluster database](/influxdb3/cloud-dedicated/admin/databases/) in nanoseconds, if applicable
+			//
+			// If the retention period is not set or is set to 0, the database will have infinite retention
+			RetentionPeriod *ClusterDatabaseRetentionPeriod `json:"retentionPeriod,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest BadRequest
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest Forbidden
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseDeleteClusterDatabaseResponse parses an HTTP response from a DeleteClusterDatabaseWithResponse call
 func ParseDeleteClusterDatabaseResponse(rsp *http.Response) (*DeleteClusterDatabaseResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -1979,6 +2985,145 @@ func ParseUpdateClusterDatabaseResponse(rsp *http.Response) (*UpdateClusterDatab
 	return response, nil
 }
 
+// ParseRenameClusterDatabaseResponse parses an HTTP response from a RenameClusterDatabaseWithResponse call
+func ParseRenameClusterDatabaseResponse(rsp *http.Response) (*RenameClusterDatabaseResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RenameClusterDatabaseResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			AccountId UuidV4 `json:"accountId"`
+			ClusterId UuidV4 `json:"clusterId"`
+
+			// Id The ID of the cluster database
+			Id ClusterDatabaseId `json:"id"`
+
+			// MaxColumnsPerTable The maximum number of columns per table for the cluster database
+			MaxColumnsPerTable ClusterDatabaseMaxColumnsPerTable `json:"maxColumnsPerTable"`
+
+			// MaxTables The maximum number of tables for the cluster database
+			MaxTables ClusterDatabaseMaxTables `json:"maxTables"`
+
+			// Name The name of the cluster database
+			Name ClusterDatabaseName `json:"name"`
+
+			// PartitionTemplate A template for [partitioning](/influxdb3/cloud-dedicated/admin/custom-partitions/) a cluster database.
+			//
+			// Each partition template part is evaluated in sequence.
+			// The outputs from each part are concatenated with the
+			// `|` delimiter to form the final partition key.
+			//
+			// For example, using the partition template below:
+			//
+			// ```json
+			// [
+			//   {
+			//     "type": "time",
+			//     "value": "%Y"
+			//   },
+			//   {
+			//     "type": "tag",
+			//     "value": "bananas"
+			//   },
+			//   {
+			//     "type": "tag",
+			//     "value": "plátanos"
+			//   },
+			//   {
+			//     "type": "bucket",
+			//     "value": {
+			//       "tagName": "c",
+			//       "numberOfBuckets": 10
+			//     }
+			//   }
+			// ]
+			// ```
+			//
+			// The following partition keys are derived:
+			//
+			//   * `time=2023-01-01, a=bananas, b=plátanos, c=ananas`   -> `2023|bananas|plátanos|5`
+			//   * `time=2023-01-01, b=plátanos`                        -> `2023|!|plátanos|!`
+			//   * `time=2023-01-01, another=cat, b=plátanos`           -> `2023|!|plátanos|!`
+			//   * `time=2023-01-01`                                    -> `2023|!|!|!`
+			//   * `time=2023-01-01, a=cat|dog, b=!, c=!`               -> `2023|cat%7Cdog|%21|8`
+			//   * `time=2023-01-01, a=%50, c=%50`                      -> `2023|%2550|!|9`
+			//   * `time=2023-01-01, a=, c=`                            -> `2023|^|!|0`
+			//   * `time=2023-01-01, a=<long string>`                   -> `2023|<long string>#|!|!`
+			//   * `time=2023-01-01, c=<long string>`                   -> `2023|!|!|<bucket ID for untruncated long string>`
+			//
+			// When using the default [partitioning](/influxdb3/cloud-dedicated/admin/custom-partitions/) template (YYYY-MM-DD) there is no
+			// encoding necessary, as the derived partition key contains a single part, and
+			// no reserved characters. [`TemplatePart::Bucket`] parts by definition will
+			// always be within the part length limit and contain no restricted characters
+			// so are also not percent-encoded and/or truncated.
+			PartitionTemplate *ClusterDatabasePartitionTemplate `json:"partitionTemplate,omitempty"`
+
+			// RetentionPeriod The retention period of the [cluster database](/influxdb3/cloud-dedicated/admin/databases/) in nanoseconds, if applicable
+			//
+			// If the retention period is not set or is set to 0, the database will have infinite retention
+			RetentionPeriod *ClusterDatabaseRetentionPeriod `json:"retentionPeriod,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest BadRequest
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest Forbidden
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest Conflict
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseCreateClusterDatabaseTableResponse parses an HTTP response from a CreateClusterDatabaseTableWithResponse call
 func ParseCreateClusterDatabaseTableResponse(rsp *http.Response) (*CreateClusterDatabaseTableResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -2000,6 +3145,315 @@ func ParseCreateClusterDatabaseTableResponse(rsp *http.Response) (*CreateCluster
 
 			// DatabaseName The name of the cluster database
 			DatabaseName ClusterDatabaseName `json:"databaseName"`
+
+			// Name The name of the [cluster database](/influxdb3/cloud-dedicated/admin/databases/) table
+			Name ClusterDatabaseTableName `json:"name"`
+
+			// PartitionTemplate A template for [partitioning](/influxdb3/cloud-dedicated/admin/custom-partitions/) a cluster database.
+			//
+			// Each partition template part is evaluated in sequence.
+			// The outputs from each part are concatenated with the
+			// `|` delimiter to form the final partition key.
+			//
+			// For example, using the partition template below:
+			//
+			// ```json
+			// [
+			//   {
+			//     "type": "time",
+			//     "value": "%Y"
+			//   },
+			//   {
+			//     "type": "tag",
+			//     "value": "bananas"
+			//   },
+			//   {
+			//     "type": "tag",
+			//     "value": "plátanos"
+			//   },
+			//   {
+			//     "type": "bucket",
+			//     "value": {
+			//       "tagName": "c",
+			//       "numberOfBuckets": 10
+			//     }
+			//   }
+			// ]
+			// ```
+			//
+			// The following partition keys are derived:
+			//
+			//   * `time=2023-01-01, a=bananas, b=plátanos, c=ananas`   -> `2023|bananas|plátanos|5`
+			//   * `time=2023-01-01, b=plátanos`                        -> `2023|!|plátanos|!`
+			//   * `time=2023-01-01, another=cat, b=plátanos`           -> `2023|!|plátanos|!`
+			//   * `time=2023-01-01`                                    -> `2023|!|!|!`
+			//   * `time=2023-01-01, a=cat|dog, b=!, c=!`               -> `2023|cat%7Cdog|%21|8`
+			//   * `time=2023-01-01, a=%50, c=%50`                      -> `2023|%2550|!|9`
+			//   * `time=2023-01-01, a=, c=`                            -> `2023|^|!|0`
+			//   * `time=2023-01-01, a=<long string>`                   -> `2023|<long string>#|!|!`
+			//   * `time=2023-01-01, c=<long string>`                   -> `2023|!|!|<bucket ID for untruncated long string>`
+			//
+			// When using the default [partitioning](/influxdb3/cloud-dedicated/admin/custom-partitions/) template (YYYY-MM-DD) there is no
+			// encoding necessary, as the derived partition key contains a single part, and
+			// no reserved characters. [`TemplatePart::Bucket`] parts by definition will
+			// always be within the part length limit and contain no restricted characters
+			// so are also not percent-encoded and/or truncated.
+			PartitionTemplate *ClusterDatabasePartitionTemplate `json:"partitionTemplate,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest BadRequest
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest Forbidden
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest Conflict
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUndeleteClusterDatabaseTableResponse parses an HTTP response from a UndeleteClusterDatabaseTableWithResponse call
+func ParseUndeleteClusterDatabaseTableResponse(rsp *http.Response) (*UndeleteClusterDatabaseTableResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UndeleteClusterDatabaseTableResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			AccountId UuidV4 `json:"accountId"`
+			ClusterId UuidV4 `json:"clusterId"`
+
+			// DatabaseName The name of the cluster database
+			DatabaseName ClusterDatabaseName `json:"databaseName"`
+
+			// Id The ID of the table
+			Id int64 `json:"id"`
+
+			// Name The name of the [cluster database](/influxdb3/cloud-dedicated/admin/databases/) table
+			Name ClusterDatabaseTableName `json:"name"`
+
+			// PartitionTemplate A template for [partitioning](/influxdb3/cloud-dedicated/admin/custom-partitions/) a cluster database.
+			//
+			// Each partition template part is evaluated in sequence.
+			// The outputs from each part are concatenated with the
+			// `|` delimiter to form the final partition key.
+			//
+			// For example, using the partition template below:
+			//
+			// ```json
+			// [
+			//   {
+			//     "type": "time",
+			//     "value": "%Y"
+			//   },
+			//   {
+			//     "type": "tag",
+			//     "value": "bananas"
+			//   },
+			//   {
+			//     "type": "tag",
+			//     "value": "plátanos"
+			//   },
+			//   {
+			//     "type": "bucket",
+			//     "value": {
+			//       "tagName": "c",
+			//       "numberOfBuckets": 10
+			//     }
+			//   }
+			// ]
+			// ```
+			//
+			// The following partition keys are derived:
+			//
+			//   * `time=2023-01-01, a=bananas, b=plátanos, c=ananas`   -> `2023|bananas|plátanos|5`
+			//   * `time=2023-01-01, b=plátanos`                        -> `2023|!|plátanos|!`
+			//   * `time=2023-01-01, another=cat, b=plátanos`           -> `2023|!|plátanos|!`
+			//   * `time=2023-01-01`                                    -> `2023|!|!|!`
+			//   * `time=2023-01-01, a=cat|dog, b=!, c=!`               -> `2023|cat%7Cdog|%21|8`
+			//   * `time=2023-01-01, a=%50, c=%50`                      -> `2023|%2550|!|9`
+			//   * `time=2023-01-01, a=, c=`                            -> `2023|^|!|0`
+			//   * `time=2023-01-01, a=<long string>`                   -> `2023|<long string>#|!|!`
+			//   * `time=2023-01-01, c=<long string>`                   -> `2023|!|!|<bucket ID for untruncated long string>`
+			//
+			// When using the default [partitioning](/influxdb3/cloud-dedicated/admin/custom-partitions/) template (YYYY-MM-DD) there is no
+			// encoding necessary, as the derived partition key contains a single part, and
+			// no reserved characters. [`TemplatePart::Bucket`] parts by definition will
+			// always be within the part length limit and contain no restricted characters
+			// so are also not percent-encoded and/or truncated.
+			PartitionTemplate *ClusterDatabasePartitionTemplate `json:"partitionTemplate,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest BadRequest
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest Forbidden
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteClusterDatabaseTableResponse parses an HTTP response from a DeleteClusterDatabaseTableWithResponse call
+func ParseDeleteClusterDatabaseTableResponse(rsp *http.Response) (*DeleteClusterDatabaseTableResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteClusterDatabaseTableResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest BadRequest
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest Forbidden
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRenameClusterDatabaseTableResponse parses an HTTP response from a RenameClusterDatabaseTableWithResponse call
+func ParseRenameClusterDatabaseTableResponse(rsp *http.Response) (*RenameClusterDatabaseTableResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RenameClusterDatabaseTableResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			AccountId UuidV4 `json:"accountId"`
+			ClusterId UuidV4 `json:"clusterId"`
+
+			// DatabaseName The name of the cluster database
+			DatabaseName ClusterDatabaseName `json:"databaseName"`
+
+			// Id The ID of the table
+			Id int64 `json:"id"`
 
 			// Name The name of the [cluster database](/influxdb3/cloud-dedicated/admin/databases/) table
 			Name ClusterDatabaseTableName `json:"name"`

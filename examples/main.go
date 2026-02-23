@@ -12,10 +12,10 @@ import (
 )
 
 type InfluxdbConfig struct {
-	AccountId influxdb3.UuidV4 `env:"INFLUXDB_ACCOUNT_ID"`
-	BaseURL   string           `env:"INFLUXDB_BASE_URL"`
-	ClusterId influxdb3.UuidV4 `env:"INFLUXDB_CLUSTER_ID"`
-	Token     string           `env:"INFLUXDB_TOKEN"`
+	AccountId influxdb3.UuidV4 `env:"INFLUXDB3_ACCOUNT_ID"`
+	ClusterId influxdb3.UuidV4 `env:"INFLUXDB3_CLUSTER_ID"`
+	Token     string           `env:"INFLUXDB3_TOKEN"`
+	Url       string           `env:"INFLUXDB3_URL"`
 }
 
 func main() {
@@ -33,7 +33,7 @@ func main() {
 	retryClient.RetryWaitMax = 5 * time.Second
 	retryClient.RetryMax = 3
 
-	client, err := influxdb3.NewClientWithResponses(cfg.BaseURL, influxdb3.WithRequestEditorFn(func(ctx context.Context, req *http.Request) error {
+	client, err := influxdb3.NewClientWithResponses(cfg.Url, influxdb3.WithRequestEditorFn(func(ctx context.Context, req *http.Request) error {
 		req.Header.Set("Accept", "application/json")
 		req.Header.Set("Authorization", "Bearer "+cfg.Token)
 		return nil
