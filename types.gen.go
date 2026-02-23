@@ -36,6 +36,9 @@ const (
 	Asterisk DatabaseTokenResourceAllDatabases = "*"
 )
 
+// ClusterDatabaseId The ID of the cluster database
+type ClusterDatabaseId = int64
+
 // ClusterDatabaseMaxColumnsPerTable The maximum number of columns per table for the cluster database
 type ClusterDatabaseMaxColumnsPerTable = int32
 
@@ -300,6 +303,12 @@ type UpdateClusterDatabaseJSONBody struct {
 	RetentionPeriod *ClusterDatabaseRetentionPeriod `json:"retentionPeriod,omitempty"`
 }
 
+// RenameClusterDatabaseJSONBody defines parameters for RenameClusterDatabase.
+type RenameClusterDatabaseJSONBody struct {
+	// Name The name of the cluster database
+	Name ClusterDatabaseName `json:"name"`
+}
+
 // CreateClusterDatabaseTableJSONBody defines parameters for CreateClusterDatabaseTable.
 type CreateClusterDatabaseTableJSONBody struct {
 	// Name The name of the [cluster database](/influxdb3/cloud-dedicated/admin/databases/) table
@@ -357,6 +366,12 @@ type CreateClusterDatabaseTableJSONBody struct {
 	PartitionTemplate *ClusterDatabasePartitionTemplate `json:"partitionTemplate,omitempty"`
 }
 
+// RenameClusterDatabaseTableJSONBody defines parameters for RenameClusterDatabaseTable.
+type RenameClusterDatabaseTableJSONBody struct {
+	// Name The name of the [cluster database](/influxdb3/cloud-dedicated/admin/databases/) table
+	Name ClusterDatabaseTableName `json:"name"`
+}
+
 // CreateDatabaseTokenJSONBody defines parameters for CreateDatabaseToken.
 type CreateDatabaseTokenJSONBody struct {
 	// Description The description of the database token
@@ -382,8 +397,14 @@ type CreateClusterDatabaseJSONRequestBody CreateClusterDatabaseJSONBody
 // UpdateClusterDatabaseJSONRequestBody defines body for UpdateClusterDatabase for application/json ContentType.
 type UpdateClusterDatabaseJSONRequestBody UpdateClusterDatabaseJSONBody
 
+// RenameClusterDatabaseJSONRequestBody defines body for RenameClusterDatabase for application/json ContentType.
+type RenameClusterDatabaseJSONRequestBody RenameClusterDatabaseJSONBody
+
 // CreateClusterDatabaseTableJSONRequestBody defines body for CreateClusterDatabaseTable for application/json ContentType.
 type CreateClusterDatabaseTableJSONRequestBody CreateClusterDatabaseTableJSONBody
+
+// RenameClusterDatabaseTableJSONRequestBody defines body for RenameClusterDatabaseTable for application/json ContentType.
+type RenameClusterDatabaseTableJSONRequestBody RenameClusterDatabaseTableJSONBody
 
 // CreateDatabaseTokenJSONRequestBody defines body for CreateDatabaseToken for application/json ContentType.
 type CreateDatabaseTokenJSONRequestBody CreateDatabaseTokenJSONBody

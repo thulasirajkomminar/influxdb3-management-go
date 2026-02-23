@@ -29,54 +29,54 @@ export INFLUXDB_TOKEN="1e0f14063eb14a9e94fe765bf999a90cb7962f8e0f394110b91053ea2
 package main
 
 import (
-	"context"
-	"io"
-	"net/http"
-
-	"github.com/caarlos0/env/v11"
-	"github.com/thulasirajkomminar/influxdb3-management-go"
+    "context"
+    "io"
+    "net/http"
+    
+    "github.com/caarlos0/env/v11"
+    "github.com/thulasirajkomminar/influxdb3-management-go"
 )
 
 type InfluxdbConfig struct {
-	AccountId influxdb3.UuidV4 `env:"INFLUXDB_ACCOUNT_ID"`
-	BaseURL   string           `env:"INFLUXDB_BASE_URL"`
-	ClusterId influxdb3.UuidV4 `env:"INFLUXDB_CLUSTER_ID"`
-	Token     string           `env:"INFLUXDB_TOKEN"`
+    AccountId influxdb3.UuidV4 `env:"INFLUXDB3_ACCOUNT_ID"`
+    ClusterId influxdb3.UuidV4 `env:"INFLUXDB3_CLUSTER_ID"`
+    Token     string           `env:"INFLUXDB3_TOKEN"`
+    Url       string           `env:"INFLUXDB3_URL"`
 }
 
 func main() {
-	cfg := InfluxdbConfig{}
-	opts := env.Options{RequiredIfNoDef: true}
+    cfg := InfluxdbConfig{}
+    opts := env.Options{RequiredIfNoDef: true}
 
-	err := env.ParseWithOptions(&cfg, opts)
-	if err != nil {
-		panic(err)
-	}
+    err := env.ParseWithOptions(&cfg, opts)
+    if err != nil {
+        panic(err)
+    }
 
-	ctx := context.Background()
-	client, err := influxdb3.NewClient(cfg.BaseURL, influxdb3.WithRequestEditorFn(func(ctx context.Context, req *http.Request) error {
-		req.Header.Set("Accept", "application/json")
-		req.Header.Set("Authorization", "Bearer "+cfg.Token)
-		return nil
+    ctx := context.Background()
+    client, err := influxdb3.NewClient(cfg.Url, influxdb3.WithRequestEditorFn(func(ctx context.Context, req *http.Request) error {
+        req.Header.Set("Accept", "application/json")
+        req.Header.Set("Authorization", "Bearer "+cfg.Token)
+        return nil
 
-	}))
-	if err != nil {
-		panic(err)
-	}
+    }))
+    if err != nil {
+        panic(err)
+    }
 
-	resp, err := client.GetDatabaseTokens(ctx, cfg.AccountId, cfg.ClusterId)
-	if err != nil {
-		panic(err)
-	}
-	defer resp.Body.Close()
+    resp, err := client.GetDatabaseTokens(ctx, cfg.AccountId, cfg.ClusterId)
+    if err != nil {
+        panic(err)
+    }
+    defer resp.Body.Close()
 
-	if resp.StatusCode == http.StatusOK {
-		bodyBytes, err := io.ReadAll(resp.Body)
-		if err != nil {
-			panic(err)
-		}
-		bodyString := string(bodyBytes)
-		println(bodyString)
-	}
+    if resp.StatusCode == http.StatusOK {
+        bodyBytes, err := io.ReadAll(resp.Body)
+        if err != nil {
+            panic(err)
+        }
+        bodyString := string(bodyBytes)
+        println(bodyString)
+    }
 }
 ```
