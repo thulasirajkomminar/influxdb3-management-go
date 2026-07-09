@@ -22,9 +22,11 @@ This library is generated using [oapi-codegen](https://github.com/oapi-codegen/o
 
 ### Generate
 
-```go
+```bash
 go generate ./...
 ```
+
+The OpenAPI specs in [`specs/`](specs/) are kept in sync with upstream automatically by a weekly [GitHub Actions workflow](.github/workflows/sync-openapi-specs.yml), which regenerates the clients and opens a PR when the specs change.
 
 ## Usage
 
@@ -34,6 +36,8 @@ export INFLUXDB3_CLUSTER_ID="a379c48a-791e-47fe-ba64-628ba19507e8"
 export INFLUXDB3_TOKEN="1e0f14063eb14a9e94fe765bf999a90cb7962f8e0f394110b91053ea26cdce5071d6bca29e4d4684bed463cf2ea9f381"
 export INFLUXDB3_URL="https://console.influxdata.com/api/v0"
 ```
+
+Runnable examples for all three variants are available in [`examples/`](examples/): [cloud](examples/cloud/main.go), [core](examples/core/main.go), and [enterprise](examples/enterprise/main.go).
 
 ### Sample code to list databases in a cloud dedicated cluster
 

@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   build:
-    name: Build Go
+    name: Build & Verify
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -25,5 +25,23 @@ jobs:
       - name: Verify dependencies
         run: go mod verify
 
+      - name: Check formatting
+        run: |
+          unformatted="$(gofmt -l .)"
+          if [ -n "$unformatted" ]; then
+            echo "The following files are not gofmt-formatted:"
+            echo "$unformatted"
+            exit 1
+          fi
+
       - name: Build the project
         run: go build -v ./...
+
+      - name: Vet
+        run: go vet ./...
+
+      - name: Build examples module
+        working-directory: examples
+        run: |
+          go mod verify
+          go build -v ./...

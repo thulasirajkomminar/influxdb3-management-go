@@ -9,7 +9,7 @@ This document captures required refactoring on your part when upgrading to a mod
 #### Before
 
 ```go
-import "github.com/thulasirajkomminar/influxdb3"
+import "github.com/thulasirajkomminar/influxdb3-management-go"
 
 // Single client for Cloud Dedicated only
 client, err := influxdb3.NewClient(baseURL)
