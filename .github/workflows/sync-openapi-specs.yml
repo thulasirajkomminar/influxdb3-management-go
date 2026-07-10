@@ -5,9 +5,12 @@ on:
     - cron: "0 6 * * 0" # Run weekly on Sunday at 6:00 AM UTC
   workflow_dispatch: # Allow manual trigger
 
+permissions: {}
+
 jobs:
   sync-specs:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     permissions:
       contents: write
       pull-requests: write
@@ -20,10 +23,12 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
 
       - name: Setup Go
-        uses: actions/setup-go@v6
+        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
         with:
           go-version-file: "go.mod"
 
@@ -107,7 +112,7 @@ jobs:
 
       - name: Create Pull Request
         if: steps.check-changes.outputs.changes_detected == 'true'
-        uses: peter-evans/create-pull-request@v8
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
         with:
           # Use SYNC_PAT (a PAT or GitHub App token) so the resulting PR triggers
           # the PR CI workflow. GITHUB_TOKEN-created PRs do NOT trigger other

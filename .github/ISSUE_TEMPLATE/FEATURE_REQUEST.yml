@@ -1,0 +1,59 @@
+name: Feature Request
+description: Opening a feature request kicks off a discussion
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for suggesting an idea to improve this client!
+
+        * Please add a :+1: or comment on a similar existing feature request instead of opening a new one.
+  - type: dropdown
+    id: variant
+    attributes:
+      label: InfluxDB variant
+      description: Which InfluxDB 3 product (and client package) does this apply to?
+      multiple: true
+      options:
+        - Cloud Dedicated (`cloud`)
+        - Core (`core`)
+        - Enterprise (`enterprise`)
+        - All / not variant-specific
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: Short summary of the feature.
+    validations:
+      required: true
+  - type: textarea
+    id: current-behavior
+    attributes:
+      label: Current behavior
+      description: Describe what currently happens.
+    validations:
+      required: true
+  - type: textarea
+    id: desired-behavior
+    attributes:
+      label: Desired behavior
+      description: Describe what you want to happen instead.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Describe other solutions or features you considered.
+    validations:
+      required: false
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Use case
+      description: Why is this important? This helps with prioritizing requests.
+    validations:
+      required: true
