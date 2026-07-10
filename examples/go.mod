@@ -1,6 +1,6 @@
 module github.com/thulasirajkomminar/influxdb3-management-go/examples
 
-go 1.26.4
+go 1.26.5
 
 replace github.com/thulasirajkomminar/influxdb3-management-go => ../
 
