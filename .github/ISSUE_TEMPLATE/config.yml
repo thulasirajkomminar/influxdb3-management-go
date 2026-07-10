@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: InfluxDB v3 API documentation
+    url: https://docs.influxdata.com/influxdb3/
+    about: Questions about the InfluxDB v3 APIs themselves are best answered by the official docs.

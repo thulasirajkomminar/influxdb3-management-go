@@ -1,0 +1,127 @@
+name: Sync OpenAPI Specs
+
+on:
+  schedule:
+    - cron: "0 6 * * 0" # Run weekly on Sunday at 6:00 AM UTC
+  workflow_dispatch: # Allow manual trigger
+
+permissions: {}
+
+jobs:
+  sync-specs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+      pull-requests: write
+
+    env:
+      # Upstream spec URLs (influxdata/docs-v2)
+      CLOUD_URL: https://raw.githubusercontent.com/influxdata/docs-v2/master/api-docs/influxdb3/cloud-dedicated/management/openapi.yml
+      CORE_URL: https://raw.githubusercontent.com/influxdata/docs-v2/master/api-docs/influxdb3/core/v3/influxdb3-core-openapi.yaml
+      ENTERPRISE_URL: https://raw.githubusercontent.com/influxdata/docs-v2/master/api-docs/influxdb3/enterprise/v3/influxdb3-enterprise-openapi.yaml
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Setup Go
+        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
+        with:
+          go-version-file: "go.mod"
+
+      - name: Download latest OpenAPI specs and detect changes
+        id: check-changes
+        run: |
+          set -euo pipefail
+
+          declare -A urls=(
+            [cloud]="$CLOUD_URL"
+            [core]="$CORE_URL"
+            [enterprise]="$ENTERPRISE_URL"
+          )
+
+          changed=""
+          for variant in cloud core enterprise; do
+            dest="specs/${variant}/openapi.yml"
+            tmp="$(mktemp)"
+            echo "Downloading ${variant} spec..."
+            curl -fsSL -o "$tmp" "${urls[$variant]}"
+
+            if [ ! -f "$dest" ] || ! cmp -s "$tmp" "$dest"; then
+              echo "Changes detected in ${variant} spec"
+              mv "$tmp" "$dest"
+              changed="${changed}${variant} "
+            else
+              echo "No changes in ${variant} spec"
+              rm -f "$tmp"
+            fi
+          done
+
+          # Trim trailing space
+          changed="$(echo "$changed" | xargs || true)"
+          if [ -n "$changed" ]; then
+            echo "changes_detected=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changes_detected=false" >> "$GITHUB_OUTPUT"
+          fi
+          echo "changed_variants=${changed}" >> "$GITHUB_OUTPUT"
+          echo "Changed variants: ${changed:-none}"
+
+      - name: Regenerate and verify Go code
+        if: steps.check-changes.outputs.changes_detected == 'true'
+        run: |
+          set -euo pipefail
+          go generate ./...
+          go mod tidy
+          go build ./...
+          go vet ./...
+          test -z "$(gofmt -l cloud core enterprise)" || (echo "gofmt issues:" && gofmt -l cloud core enterprise && exit 1)
+
+      - name: Build PR body
+        if: steps.check-changes.outputs.changes_detected == 'true'
+        id: pr-body
+        env:
+          CHANGED_VARIANTS: ${{ steps.check-changes.outputs.changed_variants }}
+        run: |
+          set -euo pipefail
+          {
+            echo "## 🔄 Automated OpenAPI Spec Sync"
+            echo ""
+            echo "This PR was automatically generated to sync the OpenAPI specifications with the latest versions from the [InfluxData documentation repository](https://github.com/influxdata/docs-v2)."
+            echo ""
+            echo "### Updated variants"
+            for variant in $CHANGED_VARIANTS; do
+              case "$variant" in
+                cloud)      echo "- 🌤️ **InfluxDB 3 Cloud Dedicated**: updated management API spec" ;;
+                core)       echo "- 🏗️ **InfluxDB 3 Core**: updated v3 API spec" ;;
+                enterprise) echo "- 🏢 **InfluxDB 3 Enterprise**: updated v3 API spec" ;;
+              esac
+            done
+            echo ""
+            echo "### What's included"
+            echo "- Updated OpenAPI specs in \`specs/\`"
+            echo "- Regenerated Go client code in the affected package(s)"
+            echo "- \`go build\`, \`go vet\`, and \`gofmt\` verified in CI"
+            echo ""
+            echo "---"
+            echo "🤖 This is an automated PR created by the sync workflow."
+          } > pr-body.md
+
+      - name: Create Pull Request
+        if: steps.check-changes.outputs.changes_detected == 'true'
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+        with:
+          # Use SYNC_PAT (a PAT or GitHub App token) so the resulting PR triggers
+          # the PR CI workflow. GITHUB_TOKEN-created PRs do NOT trigger other
+          # workflows, so CI would be skipped. Falls back to GITHUB_TOKEN when
+          # SYNC_PAT is not configured (PR still opens, but CI won't auto-run).
+          token: ${{ secrets.SYNC_PAT || secrets.GITHUB_TOKEN }}
+          commit-message: "feat: update OpenAPI specs and regenerate client code"
+          title: "chore: sync OpenAPI specs from upstream (${{ steps.check-changes.outputs.changed_variants }})"
+          body-path: pr-body.md
+          branch: automated/sync-openapi-specs
+          delete-branch: true
+          labels: automated, dependencies

@@ -1,30 +1,43 @@
 name: Bug Report
 description: Create a bug report to help us improve
+title: "[Bug]: "
 labels: ["bug"]
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for taking time to fill out this bug report! We reserve this repository issues for bugs with reproducible problems.
+        Thanks for taking time to fill out this bug report! We reserve this repository's issues for bugs with reproducible problems.
 
         * Please add a :+1: or comment on a similar existing bug report instead of opening a new one.
         * Please check whether the bug can be reproduced with the latest release.
+  - type: dropdown
+    id: variant
+    attributes:
+      label: InfluxDB variant
+      description: Which InfluxDB 3 product (and client package) are you using?
+      options:
+        - Cloud Dedicated (`cloud`)
+        - Core (`core`)
+        - Enterprise (`enterprise`)
+    validations:
+      required: true
   - type: textarea
     id: specifications
     attributes:
       label: Specifications
-      description: Describe the steps to reproduce the bug.
+      description: Describe the environment where the bug occurs.
       value: |
-        * Client Version:
-        * InfluxDB Version:
-        * Platform:
+        * Client version:
+        * InfluxDB version:
+        * Go version:
+        * Platform (OS/arch):
     validations:
       required: true
   - type: textarea
     id: reproduce
     attributes:
       label: Steps to reproduce
-      description: Describe the steps to reproduce the bug.
+      description: Describe the steps to reproduce the bug. A minimal code snippet is very helpful.
       value: |
         1.
         2.
@@ -43,13 +56,14 @@ body:
     id: actual-behavior
     attributes:
       label: Actual behavior
-      description: Describe what actually happened when you performed the above steps.
+      description: Describe what actually happened when you performed the above steps. Include the full error message if there is one.
     validations:
       required: true
   - type: textarea
     id: additional-info
     attributes:
       label: Additional info
-      description: Include gist of relevant config, logs, etc.
+      description: Relevant config, logs, stack traces, etc. This will be automatically formatted as code.
+      render: shell
     validations:
       required: false
