@@ -3,7 +3,7 @@ module github.com/thulasirajkomminar/influxdb3-management-go
 go 1.26.5
 
 require (
-	github.com/oapi-codegen/oapi-codegen/v2 v2.7.1
+	github.com/oapi-codegen/oapi-codegen/v2 v2.7.2
 	github.com/oapi-codegen/runtime v1.5.0
 )
 
